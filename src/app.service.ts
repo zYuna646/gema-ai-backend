@@ -29,9 +29,9 @@ export class AppService {
         options: {
           message: `Berhasil mendapatkan data user dengan id ${id}`,
           code: HttpStatus.OK,
-          status: true
-        }
-      }
+          status: true,
+        },
+      },
     };
   }
 
@@ -43,9 +43,9 @@ export class AppService {
         options: {
           message: `User dengan id ${id} tidak ditemukan`,
           code: HttpStatus.NOT_FOUND,
-          status: false
-        }
-      }
+          status: false,
+        },
+      },
     };
   }
 }

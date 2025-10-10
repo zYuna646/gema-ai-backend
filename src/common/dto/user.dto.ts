@@ -19,7 +19,10 @@ export class UserResponseDto implements ApiResponse<UserDto> {
   @ApiProperty({ example: true, description: 'Status keberhasilan' })
   status: boolean;
 
-  @ApiProperty({ example: 'Berhasil mendapatkan data pengguna', description: 'Pesan respons' })
+  @ApiProperty({
+    example: 'Berhasil mendapatkan data pengguna',
+    description: 'Pesan respons',
+  })
   message: string;
 
   @ApiProperty({ type: UserDto, description: 'Data pengguna' })
@@ -47,7 +50,10 @@ export class UsersResponseDto implements ApiResponse<UserDto[]> {
   @ApiProperty({ example: true, description: 'Status keberhasilan' })
   status: boolean;
 
-  @ApiProperty({ example: 'Berhasil mendapatkan daftar pengguna', description: 'Pesan respons' })
+  @ApiProperty({
+    example: 'Berhasil mendapatkan daftar pengguna',
+    description: 'Pesan respons',
+  })
   message: string;
 
   @ApiProperty({ type: [UserDto], description: 'Daftar pengguna' })

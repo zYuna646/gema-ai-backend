@@ -8,7 +8,7 @@ export class PaginationDto {
     limit: number,
   ): { data: any[]; meta: { pagination: PaginationMeta } } {
     const lastPage = Math.ceil(total / limit);
-    
+
     return {
       data,
       meta: {

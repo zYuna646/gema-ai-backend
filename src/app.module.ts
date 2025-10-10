@@ -3,6 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { PermissionsModule } from './permissions/permissions.module';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { AppService } from './app.service';
         synchronize: configService.get('NODE_ENV') !== 'production',
       }),
     }),
+    PermissionsModule,
+    RolesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

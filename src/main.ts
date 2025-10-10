@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = configService.get('PORT') || 3000;
-  
+
   // Menggunakan TransformInterceptor secara global
   app.useGlobalInterceptors(new TransformInterceptor());
 
@@ -24,6 +24,8 @@ async function bootstrap() {
 
   await app.listen(port);
   console.log(`Application is running on: http://localhost:${port}`);
-  console.log(`Swagger documentation is available at: http://localhost:${port}/api/docs`);
+  console.log(
+    `Swagger documentation is available at: http://localhost:${port}/api/docs`,
+  );
 }
 bootstrap();

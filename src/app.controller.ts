@@ -1,4 +1,10 @@
-import { Controller, Get, Param, ParseIntPipe, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  NotFoundException,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { UserResponseDto } from './common/dto/user.dto';
@@ -16,11 +22,11 @@ export class AppController {
   }
 
   @ApiOperation({ summary: 'Get all users' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Return all users with pagination',
     type: UserResponseDto,
-    isArray: true
+    isArray: true,
   })
   @Get('users')
   getUsers() {
@@ -29,14 +35,14 @@ export class AppController {
 
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiParam({ name: 'id', description: 'User ID', type: Number })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Return the user',
-    type: UserResponseDto
+    type: UserResponseDto,
   })
-  @ApiResponse({ 
-    status: 404, 
-    description: 'User not found' 
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
   })
   @Get('users/:id')
   getUser(@Param('id', ParseIntPipe) id: number) {
