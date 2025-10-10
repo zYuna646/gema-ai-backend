@@ -6,6 +6,12 @@ import { AppService } from './app.service';
 import { PermissionsModule } from './permissions/permissions.module';
 import { RolesModule } from './roles/roles.module';
 import { UsersModule } from './users/users.module';
+import { PermissionSeeder } from './database/seeders/permission.seeder';
+import { RoleSeeder } from './database/seeders/role.seeder';
+import { UserSeeder } from './database/seeders/user.seeder';
+import { Permission } from './permissions/entities/permission.entity';
+import { Role } from './roles/entities/role.entity';
+import { User } from './users/entities/user.entity';
 
 @Module({
   imports: [
@@ -27,11 +33,13 @@ import { UsersModule } from './users/users.module';
         synchronize: configService.get('NODE_ENV') !== 'production',
       }),
     }),
+    TypeOrmModule.forFeature([Permission, Role, User]),
     PermissionsModule,
     RolesModule,
     UsersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PermissionSeeder, RoleSeeder, UserSeeder],
+  exports: [PermissionSeeder, RoleSeeder, UserSeeder],
 })
 export class AppModule {}
