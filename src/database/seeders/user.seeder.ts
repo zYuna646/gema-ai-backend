@@ -34,6 +34,7 @@ export class UserSeeder {
       name: 'Administrator',
       email: 'admin@example.com',
       password: 'admin123',
+      role: adminRole, // Menambahkan role admin
     });
 
     await this.userRepository.save(admin);

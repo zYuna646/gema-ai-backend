@@ -12,6 +12,7 @@ import { UserSeeder } from './database/seeders/user.seeder';
 import { Permission } from './permissions/entities/permission.entity';
 import { Role } from './roles/entities/role.entity';
 import { User } from './users/entities/user.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { User } from './users/entities/user.entity';
     PermissionsModule,
     RolesModule,
     UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService, PermissionSeeder, RoleSeeder, UserSeeder],

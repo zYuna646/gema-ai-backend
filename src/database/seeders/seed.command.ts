@@ -12,10 +12,10 @@ export class SeedCommand extends CommandRunner {
   async run(): Promise<void> {
     try {
       console.log('Starting database seeding...');
-      
+
       // Menjalankan user seeder (yang akan menjalankan role dan permission seeder)
       await this.userSeeder.seed();
-      
+
       console.log('Database seeding completed successfully');
     } catch (error) {
       console.error('Error during database seeding:', error);

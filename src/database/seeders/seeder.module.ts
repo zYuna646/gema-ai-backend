@@ -24,7 +24,7 @@ import { ConfigModule } from '@nestjs/config';
       entities: [Permission, Role, User],
       synchronize: process.env.NODE_ENV !== 'production',
     }),
-    TypeOrmModule.forFeature([Permission, Role, User])
+    TypeOrmModule.forFeature([Permission, Role, User]),
   ],
   providers: [PermissionSeeder, RoleSeeder, UserSeeder],
   exports: [PermissionSeeder, RoleSeeder, UserSeeder],

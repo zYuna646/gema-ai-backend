@@ -4,7 +4,7 @@ import { UserSeeder } from './database/seeders/user.seeder';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
-  
+
   try {
     const userSeeder = app.get(UserSeeder);
     await userSeeder.seed();

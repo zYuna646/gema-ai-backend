@@ -39,12 +39,23 @@ export class UsersService {
   async findOne(id: string) {
     const user = await this.userRepository.findOne({
       where: { id },
-      select: ['id', 'name', 'email', 'created_at', 'updated_at'],
+      relations: ['roles'],
+      select: ['id', 'name', 'email', 'password', 'created_at', 'updated_at'],
     });
 
     if (!user) {
       throw new NotFoundException(`User dengan ID ${id} tidak ditemukan`);
     }
+
+    return user;
+  }
+
+  async findByEmail(email: string) {
+    const user = await this.userRepository.findOne({
+      where: { email },
+      relations: ['roles'],
+      select: ['id', 'name', 'email', 'password', 'created_at', 'updated_at'],
+    });
 
     return user;
   }
