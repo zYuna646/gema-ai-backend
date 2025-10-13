@@ -78,13 +78,30 @@ export class AuthController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized or invalid token' })
-  @UseGuards(JwtAuthGuard)
   @Post('verify')
-  verify(@Headers('authorization') authHeader: string) {
-    // Extract token from Bearer header
-    console.log(authHeader);
-    const token = authHeader?.split(' ')[1];
-    return this.authService.verify(token);
+  async verify(@Headers('authorization') authHeader: string) {
+    try {
+      // Extract token from Bearer header
+      console.log('Auth Header:', authHeader);
+      
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return {
+          valid: false,
+          message: 'Token tidak valid: Format header tidak sesuai'
+        };
+      }
+      
+      const token = authHeader.split(' ')[1];
+      console.log('Token extracted:', token);
+      
+      return await this.authService.verify(token);
+    } catch (error) {
+      console.error('Error in verify endpoint:', error);
+      return {
+        valid: false,
+        message: 'Error verifying token: ' + error.message
+      };
+    }
   }
 
   @ApiOperation({ summary: 'Get user profile' })
@@ -98,6 +115,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Req() req: RequestWithUser) {
+    console.log('User from request:', req.user);
     return this.authService.getProfile(req.user.id);
   }
 }
