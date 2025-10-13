@@ -82,6 +82,7 @@ export class AuthController {
   @Post('verify')
   verify(@Headers('authorization') authHeader: string) {
     // Extract token from Bearer header
+    console.log(authHeader);
     const token = authHeader?.split(' ')[1];
     return this.authService.verify(token);
   }

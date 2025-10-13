@@ -13,6 +13,11 @@ export class SeedCommand extends CommandRunner {
     try {
       console.log('Starting database seeding...');
 
+      // Menghapus semua data yang ada terlebih dahulu
+      console.log('Clearing existing data...');
+      await this.userSeeder.clearAll();
+      console.log('All existing data cleared');
+
       // Menjalankan user seeder (yang akan menjalankan role dan permission seeder)
       await this.userSeeder.seed();
 

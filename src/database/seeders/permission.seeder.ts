@@ -10,6 +10,12 @@ export class PermissionSeeder {
     private permissionRepository: Repository<Permission>,
   ) {}
 
+  async clear() {
+    console.log('Clearing all permissions...');
+    await this.permissionRepository.clear();
+    console.log('All permissions cleared');
+  }
+
   async seed() {
     const permissions = [
       { name: 'Create User', slug: 'create-user' },
@@ -26,17 +32,18 @@ export class PermissionSeeder {
       { name: 'Delete Permission', slug: 'delete-permission' },
     ];
 
-    for (const permission of permissions) {
-      const existingPermission = await this.permissionRepository.findOne({
-        where: { slug: permission.slug },
-      });
-
-      if (!existingPermission) {
-        await this.permissionRepository.save(permission);
-        console.log(`Permission created: ${permission.name}`);
-      } else {
-        console.log(`Permission already exists: ${permission.name}`);
-      }
+    try {
+      // Gunakan clear() untuk menghapus semua data terlebih dahulu
+      // Ini sudah dipanggil dari RoleSeeder melalui clearPermissions()
+      
+      // Simpan semua permission sekaligus
+      const createdPermissions = await this.permissionRepository.save(permissions);
+      console.log('All permissions created');
+      return createdPermissions;
+    } catch (error) {
+      console.error('Error seeding permissions:', error.message);
+      // Jika terjadi error duplikasi, ambil permission yang sudah ada
+      return await this.permissionRepository.find();
     }
   }
 }
