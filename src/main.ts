@@ -9,6 +9,13 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get('PORT') || 3000;
 
+  // Mengaktifkan CORS untuk semua origin
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
+
   // Menggunakan TransformInterceptor secara global
   app.useGlobalInterceptors(new TransformInterceptor());
 

@@ -20,7 +20,7 @@ export class RoleSeeder {
     await this.roleRepository.clear();
     console.log('All roles cleared');
   }
-  
+
   async clearPermissions() {
     // Clear permissions
     await this.permissionSeeder.clear();
@@ -32,9 +32,9 @@ export class RoleSeeder {
       const permissions = await this.permissionSeeder.seed();
 
       // Cek apakah role admin sudah ada
-      let adminRole = await this.roleRepository.findOne({ 
+      let adminRole = await this.roleRepository.findOne({
         where: { slug: 'admin' },
-        relations: ['permissions']
+        relations: ['permissions'],
       });
 
       if (adminRole) {
@@ -59,13 +59,13 @@ export class RoleSeeder {
       // Jika terjadi error, ambil role yang sudah ada
       const existingRole = await this.roleRepository.findOne({
         where: { slug: 'admin' },
-        relations: ['permissions']
+        relations: ['permissions'],
       });
-      
+
       if (existingRole) {
         return existingRole;
       }
-      
+
       throw error;
     }
   }

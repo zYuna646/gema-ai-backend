@@ -35,9 +35,10 @@ export class PermissionSeeder {
     try {
       // Gunakan clear() untuk menghapus semua data terlebih dahulu
       // Ini sudah dipanggil dari RoleSeeder melalui clearPermissions()
-      
+
       // Simpan semua permission sekaligus
-      const createdPermissions = await this.permissionRepository.save(permissions);
+      const createdPermissions =
+        await this.permissionRepository.save(permissions);
       console.log('All permissions created');
       return createdPermissions;
     } catch (error) {

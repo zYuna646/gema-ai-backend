@@ -20,7 +20,7 @@ export class UserSeeder {
     await this.userRepository.clear();
     console.log('All users cleared');
   }
-  
+
   async clearAll() {
     // Clear data in reverse order (user -> role -> permission)
     await this.clear();
@@ -34,9 +34,9 @@ export class UserSeeder {
       const adminRole = await this.roleSeeder.seed();
 
       // Cek apakah user admin sudah ada
-      let admin = await this.userRepository.findOne({ 
+      let admin = await this.userRepository.findOne({
         where: { email: 'admin@example.com' },
-        relations: ['role']
+        relations: ['role'],
       });
 
       if (admin) {
@@ -55,20 +55,20 @@ export class UserSeeder {
         await this.userRepository.save(admin);
         console.log('Admin user created');
       }
-      
+
       return admin;
     } catch (error) {
       console.error('Error seeding users:', error.message);
       // Jika terjadi error, ambil user yang sudah ada
       const existingUser = await this.userRepository.findOne({
         where: { email: 'admin@example.com' },
-        relations: ['role']
+        relations: ['role'],
       });
-      
+
       if (existingUser) {
         return existingUser;
       }
-      
+
       throw error;
     }
   }

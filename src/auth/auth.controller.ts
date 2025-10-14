@@ -83,23 +83,23 @@ export class AuthController {
     try {
       // Extract token from Bearer header
       console.log('Auth Header:', authHeader);
-      
+
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return {
           valid: false,
-          message: 'Token tidak valid: Format header tidak sesuai'
+          message: 'Token tidak valid: Format header tidak sesuai',
         };
       }
-      
+
       const token = authHeader.split(' ')[1];
       console.log('Token extracted:', token);
-      
+
       return await this.authService.verify(token);
     } catch (error) {
       console.error('Error in verify endpoint:', error);
       return {
         valid: false,
-        message: 'Error verifying token: ' + error.message
+        message: 'Error verifying token: ' + error.message,
       };
     }
   }

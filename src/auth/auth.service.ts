@@ -72,24 +72,24 @@ export class AuthService {
       if (!token) {
         return {
           valid: false,
-          message: 'Token tidak ditemukan'
+          message: 'Token tidak ditemukan',
         };
       }
-      
+
       // Gunakan secret yang sama dengan yang digunakan untuk sign token
       // Hapus opsi secret untuk menggunakan default dari JwtModule
       const payload = this.jwtService.verify(token);
-      
+
       // Cari user berdasarkan payload
       const user = await this.usersService.findOne(payload.sub);
-      
+
       if (!user) {
         return {
           valid: false,
-          message: 'User tidak ditemukan'
+          message: 'User tidak ditemukan',
         };
       }
-      
+
       return {
         valid: true,
         user: {
@@ -98,13 +98,13 @@ export class AuthService {
           email: user.email,
           role: user.role,
           permissions: user.role ? user.role.permissions : [],
-        }
+        },
       };
     } catch (error) {
       console.error('Error verifying token:', error.message);
       return {
         valid: false,
-        message: 'Invalid token: ' + error.message
+        message: 'Invalid token: ' + error.message,
       };
     }
   }
