@@ -9,10 +9,13 @@ import { UsersModule } from './users/users.module';
 import { PermissionSeeder } from './database/seeders/permission.seeder';
 import { RoleSeeder } from './database/seeders/role.seeder';
 import { UserSeeder } from './database/seeders/user.seeder';
+import { SettingSeeder } from './database/seeders/setting.seeder';
 import { Permission } from './permissions/entities/permission.entity';
 import { Role } from './roles/entities/role.entity';
 import { User } from './users/entities/user.entity';
+import { Setting } from './settings/entities/setting.entity';
 import { AuthModule } from './auth/auth.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -34,14 +37,21 @@ import { AuthModule } from './auth/auth.module';
         synchronize: configService.get('NODE_ENV') !== 'production',
       }),
     }),
-    TypeOrmModule.forFeature([Permission, Role, User]),
+    TypeOrmModule.forFeature([Permission, Role, User, Setting]),
     PermissionsModule,
     RolesModule,
     UsersModule,
     AuthModule,
+    SettingsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PermissionSeeder, RoleSeeder, UserSeeder],
-  exports: [PermissionSeeder, RoleSeeder, UserSeeder],
+  providers: [
+    AppService,
+    PermissionSeeder,
+    RoleSeeder,
+    UserSeeder,
+    SettingSeeder,
+  ],
+  exports: [PermissionSeeder, RoleSeeder, UserSeeder, SettingSeeder],
 })
 export class AppModule {}

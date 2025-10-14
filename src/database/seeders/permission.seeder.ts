@@ -30,6 +30,11 @@ export class PermissionSeeder {
       { name: 'Read Permission', slug: 'read-permission' },
       { name: 'Update Permission', slug: 'update-permission' },
       { name: 'Delete Permission', slug: 'delete-permission' },
+      { name: 'Create Setting', slug: 'create-setting' },
+      { name: 'Read Setting', slug: 'read-setting' },
+      { name: 'Update Setting', slug: 'update-setting' },
+      { name: 'Delete Setting', slug: 'delete-setting' },
+      { name: 'Initialize Setting', slug: 'initialize-setting' },
     ];
 
     try {
