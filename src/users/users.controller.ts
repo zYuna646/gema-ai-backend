@@ -7,10 +7,13 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
+  HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { FilterUserDto } from './dto/filter-user.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -43,7 +46,7 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: 'Get all users' })
-  @ApiResponse({ status: 200, description: 'Return all users' })
+  @ApiResponse({ status: 200, description: 'Return all users with pagination' })
   @ApiResponse({
     status: 403,
     description: 'Forbidden - Insufficient permissions',
@@ -52,8 +55,8 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions('read-user')
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query() filterDto: FilterUserDto) {
+    return this.usersService.findAll(filterDto);
   }
 
   @ApiOperation({ summary: 'Get a user by ID' })
@@ -68,8 +71,24 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions('read-user')
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    const user = await this.usersService.findOne(id);
+    if (user) {
+      return {
+        data: user,
+        meta: {
+          status: HttpStatus.OK,
+          message: 'User retrieved successfully',
+        },
+      };
+    }
+    return {
+      data: null,
+      meta: {
+        status: HttpStatus.NOT_FOUND,
+        message: 'User not found',
+      },
+    };
   }
 
   @ApiOperation({ summary: 'Update a user' })

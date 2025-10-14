@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, IsUUID } from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'John Doe', description: 'Nama pengguna' })
@@ -16,4 +16,9 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Password tidak boleh kosong' })
   @MinLength(6, { message: 'Password minimal 6 karakter' })
   password: string;
+
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000', description: 'ID Role pengguna' })
+  @IsNotEmpty({ message: 'Role ID tidak boleh kosong' })
+  @IsUUID(4, { message: 'Format Role ID tidak valid' })
+  role_id: string;
 }

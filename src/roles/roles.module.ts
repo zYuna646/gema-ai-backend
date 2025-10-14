@@ -9,7 +9,7 @@ import { AuthModule } from '../auth/auth.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Role]),
-    PermissionsModule,
+    forwardRef(() => PermissionsModule),
     forwardRef(() => AuthModule),
   ],
   controllers: [RolesController],

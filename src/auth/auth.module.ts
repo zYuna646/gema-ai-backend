@@ -7,11 +7,15 @@ import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { PermissionsGuard } from './guards/permissions.guard';
+import { RolesModule } from '../roles/roles.module';
+import { TrialsModule } from '../trials/trials.module';
 
 @Module({
   imports: [
     forwardRef(() => UsersModule),
     PassportModule,
+    forwardRef(() => RolesModule),
+    forwardRef(() => TrialsModule),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'your_jwt_secret_key',
       signOptions: { expiresIn: '1d' },

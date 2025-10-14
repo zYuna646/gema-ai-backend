@@ -4,10 +4,12 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
+import { FilterUserDto } from './dto/filter-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class UsersService {
@@ -30,10 +32,24 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
 
-  async findAll() {
-    return await this.userRepository.find({
+  async findAll(filterDto: FilterUserDto) {
+    const { page = 1, perPage = 10, search } = filterDto;
+    const skip = (page - 1) * perPage;
+
+    const whereCondition = search
+      ? [{ name: Like(`%${search}%`) }, { email: Like(`%${search}%`) }]
+      : {};
+
+    const [users, total] = await this.userRepository.findAndCount({
+      where: whereCondition,
       select: ['id', 'name', 'email', 'created_at', 'updated_at'],
+      skip,
+      take: perPage,
+      order: { name: 'ASC' },
+      relations: ['role'],
     });
+
+    return PaginationDto.create(users, total, page, perPage);
   }
 
   async findOne(id: string) {

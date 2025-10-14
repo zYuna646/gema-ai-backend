@@ -7,10 +7,13 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
+  HttpStatus,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { FilterRoleDto } from './dto/filter-role.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -42,7 +45,7 @@ export class RolesController {
   }
 
   @ApiOperation({ summary: 'Get all roles' })
-  @ApiResponse({ status: 200, description: 'Return all roles' })
+  @ApiResponse({ status: 200, description: 'Return all roles with pagination' })
   @ApiResponse({
     status: 403,
     description: 'Forbidden - Insufficient permissions',
@@ -51,8 +54,8 @@ export class RolesController {
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions('read-role')
   @Get()
-  findAll() {
-    return this.rolesService.findAll();
+  findAll(@Query() filterDto: FilterRoleDto) {
+    return this.rolesService.findAll(filterDto);
   }
 
   @ApiOperation({ summary: 'Get a role by ID' })
@@ -67,8 +70,31 @@ export class RolesController {
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions('read-role')
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.rolesService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    try {
+      const role = await this.rolesService.findOne(id);
+      return {
+        data: role,
+        meta: {
+          options: {
+            message: 'Role berhasil ditemukan',
+            code: HttpStatus.OK,
+            status: true,
+          },
+        },
+      };
+    } catch (error) {
+      return {
+        data: null,
+        meta: {
+          options: {
+            message: `Role dengan id ${id} tidak ditemukan`,
+            code: HttpStatus.NOT_FOUND,
+            status: false,
+          },
+        },
+      };
+    }
   }
 
   @ApiOperation({ summary: 'Update a role' })

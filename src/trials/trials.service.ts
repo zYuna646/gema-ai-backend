@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { LessThanOrEqual, MoreThanOrEqual, Repository, Like } from 'typeorm';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { FilterTrialDto } from './dto/filter-trial.dto';
 import { CreateTrialDto } from './dto/create-trial.dto';
 import { UpdateTrialDto } from './dto/update-trial.dto';
 import { Trial } from './entities/trial.entity';
@@ -34,8 +36,20 @@ export class TrialsService {
     return this.trialRepository.save(trial);
   }
 
-  findAll() {
-    return this.trialRepository.find();
+  async findAll(filterDto: FilterTrialDto) {
+    const { page = 1, perPage = 10, search } = filterDto;
+    const skip = (page - 1) * perPage;
+
+    const whereCondition = search ? [{ user_id: Like(`%${search}%`) }] : {};
+
+    const [trials, total] = await this.trialRepository.findAndCount({
+      where: whereCondition,
+      skip,
+      take: perPage,
+      order: { created_at: 'DESC' },
+    });
+
+    return PaginationDto.create(trials, total, page, perPage);
   }
 
   findOne(id: string) {

@@ -5,12 +5,16 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { AuthResponseDto } from './dto/auth-response.dto';
+import { RolesService } from '../roles/roles.service';
+import { TrialsService } from '../trials/trials.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private rolesService: RolesService,
+    private trialsService: TrialsService,
   ) {}
 
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
@@ -44,12 +48,22 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-
+    // Ambil role user berdasarkan slug
+    // Cari semua role terlebih dahulu
+    const roles = await this.rolesService.findAll({});
+    // Cari role dengan slug 'user'
+    const userRole = roles.data.find(role => role.slug === 'user');
+    
     const user = await this.usersService.create({
       name: registerDto.name,
       email: registerDto.email,
-      password: hashedPassword,
+      password: registerDto.password,
+      role_id: userRole.id,
+    });
+
+    // Buat trial untuk user yang baru register
+    await this.trialsService.create({
+      user_id: user.id,
     });
 
     const payload = { sub: user.id, email: user.email };

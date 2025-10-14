@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -21,6 +23,7 @@ import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { TrialsService } from './trials.service';
 import { CreateTrialDto } from './dto/create-trial.dto';
 import { UpdateTrialDto } from './dto/update-trial.dto';
+import { FilterTrialDto } from './dto/filter-trial.dto';
 import { Trial } from './entities/trial.entity';
 
 @ApiTags('trials')
@@ -44,10 +47,14 @@ export class TrialsController {
 
   @Get()
   @ApiOperation({ summary: 'Get all trials' })
-  @ApiResponse({ status: 200, description: 'Return all trials', type: [Trial] })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all trials with pagination',
+    type: [Trial],
+  })
   @RequirePermissions('read-trial')
-  findAll() {
-    return this.trialsService.findAll();
+  findAll(@Query() filterDto: FilterTrialDto) {
+    return this.trialsService.findAll(filterDto);
   }
 
   @Get(':id')
@@ -59,8 +66,30 @@ export class TrialsController {
     type: Trial,
   })
   @RequirePermissions('read-trial')
-  findOne(@Param('id') id: string) {
-    return this.trialsService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    const trial = await this.trialsService.findOne(id);
+    if (trial) {
+      return {
+        data: trial,
+        meta: {
+          options: {
+            message: 'Trial berhasil ditemukan',
+            code: HttpStatus.OK,
+            status: true,
+          },
+        },
+      };
+    }
+    return {
+      data: null,
+      meta: {
+        options: {
+          message: `Trial dengan id ${id} tidak ditemukan`,
+          code: HttpStatus.NOT_FOUND,
+          status: false,
+        },
+      },
+    };
   }
 
   @Get('active/user/:userId')

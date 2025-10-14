@@ -7,10 +7,13 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
+  HttpStatus,
 } from '@nestjs/common';
 import { PermissionsService } from './permissions.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
+import { FilterPermissionDto } from './dto/filter-permission.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -42,7 +45,10 @@ export class PermissionsController {
   }
 
   @ApiOperation({ summary: 'Get all permissions' })
-  @ApiResponse({ status: 200, description: 'Return all permissions' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all permissions with pagination',
+  })
   @ApiResponse({
     status: 403,
     description: 'Forbidden - insufficient permissions',
@@ -51,8 +57,8 @@ export class PermissionsController {
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions('read-permission')
   @Get()
-  findAll() {
-    return this.permissionsService.findAll();
+  findAll(@Query() filterDto: FilterPermissionDto) {
+    return this.permissionsService.findAll(filterDto);
   }
 
   @ApiOperation({ summary: 'Get a permission by ID' })
@@ -67,8 +73,31 @@ export class PermissionsController {
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions('read-permission')
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.permissionsService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    try {
+      const permission = await this.permissionsService.findOne(id);
+      return {
+        data: permission,
+        meta: {
+          options: {
+            message: 'Permission berhasil ditemukan',
+            code: HttpStatus.OK,
+            status: true,
+          },
+        },
+      };
+    } catch (error) {
+      return {
+        data: null,
+        meta: {
+          options: {
+            message: `Permission dengan id ${id} tidak ditemukan`,
+            code: HttpStatus.NOT_FOUND,
+            status: false,
+          },
+        },
+      };
+    }
   }
 
   @ApiOperation({ summary: 'Update a permission' })
