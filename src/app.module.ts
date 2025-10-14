@@ -16,6 +16,7 @@ import { User } from './users/entities/user.entity';
 import { Setting } from './settings/entities/setting.entity';
 import { AuthModule } from './auth/auth.module';
 import { SettingsModule } from './settings/settings.module';
+import { TrialsModule } from './trials/trials.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { SettingsModule } from './settings/settings.module';
     UsersModule,
     AuthModule,
     SettingsModule,
+    TrialsModule,
   ],
   controllers: [AppController],
   providers: [

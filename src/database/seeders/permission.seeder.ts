@@ -35,6 +35,10 @@ export class PermissionSeeder {
       { name: 'Update Setting', slug: 'update-setting' },
       { name: 'Delete Setting', slug: 'delete-setting' },
       { name: 'Initialize Setting', slug: 'initialize-setting' },
+      { name: 'Create Trial', slug: 'create-trial' },
+      { name: 'Read Trial', slug: 'read-trial' },
+      { name: 'Update Trial', slug: 'update-trial' },
+      { name: 'Delete Trial', slug: 'delete-trial' },
     ];
 
     try {
