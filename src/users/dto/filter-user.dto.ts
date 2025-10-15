@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, IsNumber, Min } from 'class-validator';
+import { IsOptional, IsString, IsNumber, Min, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class FilterUserDto {
@@ -33,4 +33,13 @@ export class FilterUserDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiProperty({
+    description: 'Filter berdasarkan role ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    required: false,
+  })
+  @IsOptional()
+  @IsUUID()
+  role_id?: string;
 }

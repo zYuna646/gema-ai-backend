@@ -33,12 +33,30 @@ export class UsersService {
   }
 
   async findAll(filterDto: FilterUserDto) {
-    const { page = 1, perPage = 10, search } = filterDto;
+    const { page = 1, perPage = 10, search, role_id } = filterDto;
     const skip = (page - 1) * perPage;
 
-    const whereCondition = search
-      ? [{ name: Like(`%${search}%`) }, { email: Like(`%${search}%`) }]
-      : {};
+    let whereCondition: any = {};
+    
+    if (search) {
+      whereCondition = [
+        { name: Like(`%${search}%`) }, 
+        { email: Like(`%${search}%`) }
+      ];
+    }
+    
+    if (role_id) {
+      if (Array.isArray(whereCondition)) {
+        // Jika whereCondition adalah array (karena ada search)
+        whereCondition = whereCondition.map(condition => ({
+          ...condition,
+          role: { id: role_id }
+        }));
+      } else {
+        // Jika whereCondition adalah object
+        whereCondition.role = { id: role_id };
+      }
+    }
 
     const [users, total] = await this.userRepository.findAndCount({
       where: whereCondition,
