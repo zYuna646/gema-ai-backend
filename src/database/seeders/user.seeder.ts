@@ -17,15 +17,25 @@ export class UserSeeder {
 
   async clear() {
     console.log('Clearing all users...');
-    await this.userRepository.clear();
-    console.log('All users cleared');
-  }
-
-  async clearAll() {
-    // Clear data in reverse order (user -> role -> permission)
-    await this.clear();
-    await this.roleSeeder.clear();
-    await this.roleSeeder.clearPermissions();
+    // Hapus relasi user_roles terlebih dahulu menggunakan query langsung
+    const queryRunner = this.userRepository.manager.connection.createQueryRunner();
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      
+      // Hapus relasi user_roles terlebih dahulu
+      await queryRunner.query('TRUNCATE TABLE "user_roles" CASCADE');
+      // Kemudian hapus users
+      await queryRunner.query('TRUNCATE TABLE "users" CASCADE');
+      
+      await queryRunner.commitTransaction();
+      console.log('All users cleared');
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async seed() {

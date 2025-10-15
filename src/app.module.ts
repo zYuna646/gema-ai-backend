@@ -10,6 +10,7 @@ import { PermissionSeeder } from './database/seeders/permission.seeder';
 import { RoleSeeder } from './database/seeders/role.seeder';
 import { UserSeeder } from './database/seeders/user.seeder';
 import { SettingSeeder } from './database/seeders/setting.seeder';
+import { SeedCommand } from './database/seeders/seed.command';
 import { Permission } from './permissions/entities/permission.entity';
 import { Role } from './roles/entities/role.entity';
 import { User } from './users/entities/user.entity';
@@ -55,7 +56,8 @@ import { QuotaModule } from './quota/quota.module';
     RoleSeeder,
     UserSeeder,
     SettingSeeder,
+    SeedCommand,
   ],
-  exports: [PermissionSeeder, RoleSeeder, UserSeeder, SettingSeeder],
+  exports: [PermissionSeeder, RoleSeeder, UserSeeder, SettingSeeder, SeedCommand],
 })
 export class AppModule {}

@@ -1,17 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { UserSeeder } from './database/seeders/user.seeder';
-import { SettingSeeder } from './database/seeders/setting.seeder';
+import { SeedCommand } from './database/seeders/seed.command';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
 
   try {
-    const userSeeder = app.get(UserSeeder);
-    await userSeeder.seed();
-
-    const settingSeeder = app.get(SettingSeeder);
-    await settingSeeder.seed();
+    const seedCommand = app.get(SeedCommand);
+    await seedCommand.run();
 
     console.log('Seeding completed successfully');
   } catch (error) {
