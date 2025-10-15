@@ -23,8 +23,8 @@ export class UserSeeder {
       await queryRunner.connect();
       await queryRunner.startTransaction();
       
-      // Hapus relasi user_roles terlebih dahulu
-      await queryRunner.query('TRUNCATE TABLE "user_roles" CASCADE');
+      // Skip truncating junction table since we're using a direct ManyToOne relationship
+      // Just truncate the users table which will handle the foreign key
       // Kemudian hapus users
       await queryRunner.query('TRUNCATE TABLE "users" CASCADE');
       
