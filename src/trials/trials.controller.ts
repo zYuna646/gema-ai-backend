@@ -101,8 +101,11 @@ export class TrialsController {
     type: Trial,
   })
   @RequirePermissions('read-trial')
-  getActiveByUserId(@Param('userId') userId: string) {
-    return this.trialsService.getActiveByUserId(userId);
+  getActiveByUserId(
+    @Param('userId') userId: string,
+    @Query() filterDto: FilterTrialDto,
+  ) {
+    return this.trialsService.getActiveByUserId(userId, filterDto);
   }
 
   @Get('history/user/:userId')
@@ -114,8 +117,11 @@ export class TrialsController {
     type: [Trial],
   })
   @RequirePermissions('read-trial')
-  getHistoryByUserId(@Param('userId') userId: string) {
-    return this.trialsService.getHistoryByUserId(userId);
+  getHistoryByUserId(
+    @Param('userId') userId: string,
+    @Query() filterDto: FilterTrialDto,
+  ) {
+    return this.trialsService.getHistoryByUserId(userId, filterDto);
   }
 
   @Patch(':id')

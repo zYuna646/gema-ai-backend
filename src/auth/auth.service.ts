@@ -52,8 +52,8 @@ export class AuthService {
     // Cari semua role terlebih dahulu
     const roles = await this.rolesService.findAll({});
     // Cari role dengan slug 'user'
-    const userRole = roles.data.find(role => role.slug === 'user');
-    
+    const userRole = roles.data.find((role) => role.slug === 'user');
+
     const user = await this.usersService.create({
       name: registerDto.name,
       email: registerDto.email,

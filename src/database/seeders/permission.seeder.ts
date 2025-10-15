@@ -39,6 +39,10 @@ export class PermissionSeeder {
       { name: 'Read Trial', slug: 'read-trial' },
       { name: 'Update Trial', slug: 'update-trial' },
       { name: 'Delete Trial', slug: 'delete-trial' },
+      { name: 'Create Quota', slug: 'create-quota' },
+      { name: 'Read Quota', slug: 'read-quota' },
+      { name: 'Update Quota', slug: 'update-quota' },
+      { name: 'Delete Quota', slug: 'delete-quota' },
     ];
 
     try {

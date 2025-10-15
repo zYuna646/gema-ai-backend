@@ -55,10 +55,10 @@ export class RoleSeeder {
 
       // Definisikan slug permission yang dibutuhkan untuk role user
       const userPermissionSlugs = ['read-trial'];
-      
+
       // Cari semua permission yang dibutuhkan untuk role user
       const userPermissions = await this.permissionRepository.find({
-        where: userPermissionSlugs.map(slug => ({ slug })),
+        where: userPermissionSlugs.map((slug) => ({ slug })),
       });
 
       if (userPermissions.length === 0) {
@@ -76,7 +76,9 @@ export class RoleSeeder {
         // Update permissions jika role sudah ada
         userRole.permissions = userPermissions;
         await this.roleRepository.save(userRole);
-        console.log(`Role user updated with ${userPermissions.length} permissions`);
+        console.log(
+          `Role user updated with ${userPermissions.length} permissions`,
+        );
       } else {
         // Buat role user baru dengan permission yang sudah ditentukan
         userRole = this.roleRepository.create({
@@ -85,7 +87,9 @@ export class RoleSeeder {
           permissions: userPermissions,
         });
         await this.roleRepository.save(userRole);
-        console.log(`Role user created with ${userPermissions.length} permissions`);
+        console.log(
+          `Role user created with ${userPermissions.length} permissions`,
+        );
       }
 
       return adminRole;

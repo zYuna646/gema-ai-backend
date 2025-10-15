@@ -56,7 +56,7 @@ export class TrialsService {
     return this.trialRepository.findOne({ where: { id } });
   }
 
-  async getActiveByUserId(userId: string) {
+  async getActiveByUserId(userId: string, filterDto: FilterTrialDto) {
     const currentDate = new Date();
     return this.trialRepository.findOne({
       where: {
@@ -67,11 +67,18 @@ export class TrialsService {
     });
   }
 
-  async getHistoryByUserId(userId: string) {
-    return this.trialRepository.find({
+  async getHistoryByUserId(userId: string, filterDto: FilterTrialDto) {
+    const { page = 1, perPage = 10 } = filterDto;
+    const skip = (page - 1) * perPage;
+
+    const [trials, total] = await this.trialRepository.findAndCount({
       where: { user_id: userId },
+      skip,
+      take: perPage,
       order: { created_at: 'DESC' },
     });
+
+    return PaginationDto.create(trials, total, page, perPage);
   }
 
   update(id: string, updateTrialDto: UpdateTrialDto) {

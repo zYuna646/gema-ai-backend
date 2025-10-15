@@ -17,6 +17,7 @@ import { Setting } from './settings/entities/setting.entity';
 import { AuthModule } from './auth/auth.module';
 import { SettingsModule } from './settings/settings.module';
 import { TrialsModule } from './trials/trials.module';
+import { QuotaModule } from './quota/quota.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { TrialsModule } from './trials/trials.module';
     AuthModule,
     SettingsModule,
     TrialsModule,
+    QuotaModule,
   ],
   controllers: [AppController],
   providers: [
