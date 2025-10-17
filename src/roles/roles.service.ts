@@ -91,4 +91,17 @@ export class RolesService {
     const role = await this.findOne(id);
     return await this.roleRepository.remove(role);
   }
+
+  async findBySlug(slug: string) {
+    const role = await this.roleRepository.findOne({
+      where: { slug },
+      relations: ['permissions'],
+    });
+
+    if (!role) {
+      throw new NotFoundException(`Role dengan slug ${slug} tidak ditemukan`);
+    }
+
+    return role;
+  }
 }

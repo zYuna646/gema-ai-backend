@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { RolesService } from '../roles/roles.service';
 import { TrialsService } from '../trials/trials.service';
+import { QuotaService } from 'src/quota/quota.service';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +16,7 @@ export class AuthService {
     private jwtService: JwtService,
     private rolesService: RolesService,
     private trialsService: TrialsService,
+    private qoutaService: QuotaService,
   ) {}
 
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
@@ -48,11 +50,8 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
-    // Ambil role user berdasarkan slug
-    // Cari semua role terlebih dahulu
-    const roles = await this.rolesService.findAll({});
-    // Cari role dengan slug 'user'
-    const userRole = roles.data.find((role) => role.slug === 'user');
+    // Ambil role user langsung berdasarkan slug
+    const userRole = await this.rolesService.findBySlug('user');
 
     const user = await this.usersService.create({
       name: registerDto.name,
@@ -62,9 +61,16 @@ export class AuthService {
     });
 
     // Buat trial untuk user yang baru register
-    await this.trialsService.create({
+    const trial = await this.trialsService.create({
       user_id: user.id,
     });
+
+    const qouta = await this.qoutaService.create({
+      user_id: user.id,
+      minutes: trial.minutes,
+      model_name: trial.constructor.name,
+      model_id: trial.id,
+    })
 
     const payload = { sub: user.id, email: user.email };
 

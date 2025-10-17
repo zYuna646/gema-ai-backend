@@ -97,6 +97,45 @@ export class RolesController {
     }
   }
 
+  @ApiOperation({ summary: 'Get a role by slug' })
+  @ApiParam({ name: 'slug', description: 'Role slug' })
+  @ApiResponse({ status: 200, description: 'Return the role' })
+  @ApiResponse({ status: 404, description: 'Role not found' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('read-role')
+  @Get('slug/:slug')
+  async findBySlug(@Param('slug') slug: string) {
+    try {
+      const role = await this.rolesService.findBySlug(slug);
+      return {
+        data: role,
+        meta: {
+          options: {
+            message: 'Role berhasil ditemukan',
+            code: HttpStatus.OK,
+            status: true,
+          },
+        },
+      };
+    } catch (error) {
+      return {
+        data: null,
+        meta: {
+          options: {
+            message: `Role dengan slug ${slug} tidak ditemukan`,
+            code: HttpStatus.NOT_FOUND,
+            status: false,
+          },
+        },
+      };
+    }
+  }
+
   @ApiOperation({ summary: 'Update a role' })
   @ApiParam({ name: 'id', description: 'Role ID' })
   @ApiResponse({ status: 200, description: 'Role updated successfully' })

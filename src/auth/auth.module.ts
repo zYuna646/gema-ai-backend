@@ -9,6 +9,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { PermissionsGuard } from './guards/permissions.guard';
 import { RolesModule } from '../roles/roles.module';
 import { TrialsModule } from '../trials/trials.module';
+import { QuotaModule } from 'src/quota/quota.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { TrialsModule } from '../trials/trials.module';
     PassportModule,
     forwardRef(() => RolesModule),
     forwardRef(() => TrialsModule),
+    forwardRef(() => QuotaModule),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'your_jwt_secret_key',
       signOptions: { expiresIn: '1d' },
