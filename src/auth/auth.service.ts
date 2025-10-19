@@ -65,6 +65,11 @@ export class AuthService {
       role_id: userRole.id,
     });
 
+    // Pastikan user tidak null
+    if (!user) {
+      throw new Error('Gagal membuat user');
+    }
+
     // Buat trial untuk user yang baru register
     const trial = await this.trialsService.create({
       user_id: user.id,
