@@ -28,8 +28,20 @@ export class UsersService {
       throw new ConflictException('Email sudah digunakan');
     }
 
-    const user = this.userRepository.create(createUserDto);
-    return await this.userRepository.save(user);
+    // Buat user dengan role_id yang benar
+    const user = this.userRepository.create({
+      ...createUserDto,
+      role: { id: createUserDto.role_id }
+    });
+    
+    // Simpan user dan load relasi role
+    const savedUser = await this.userRepository.save(user);
+    
+    // Return user dengan relasi role
+    return this.userRepository.findOne({
+      where: { id: savedUser.id },
+      relations: ['role'],
+    });
   }
 
   async findAll(filterDto: FilterUserDto) {

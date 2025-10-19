@@ -52,6 +52,11 @@ export class AuthService {
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
     // Ambil role user langsung berdasarkan slug
     const userRole = await this.rolesService.findBySlug('user');
+    console.log(userRole);
+
+    if (!userRole) {
+      throw new Error('User role not found');
+    }
 
     const user = await this.usersService.create({
       name: registerDto.name,
