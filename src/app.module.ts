@@ -20,6 +20,7 @@ import { SettingsModule } from './settings/settings.module';
 import { TrialsModule } from './trials/trials.module';
 import { QuotaModule } from './quota/quota.module';
 import { ModeModule } from './mode/mode.module';
+import { ConversationModule } from './conversation/conversation.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { ModeModule } from './mode/mode.module';
     TrialsModule,
     QuotaModule,
     ModeModule,
+    ConversationModule,
   ],
   controllers: [AppController],
   providers: [

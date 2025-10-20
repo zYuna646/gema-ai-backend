@@ -67,6 +67,10 @@ export class PermissionSeeder {
       { name: 'Read Mode', slug: 'read-mode' },
       { name: 'Update Mode', slug: 'update-mode' },
       { name: 'Delete Mode', slug: 'delete-mode' },
+      { name: 'Create Conversation', slug: 'create-conversation' },
+      { name: 'Read Conversation', slug: 'read-conversation' },
+      { name: 'Update Conversation', slug: 'update-conversation' },
+      { name: 'Delete Conversation', slug: 'delete-conversation' },
     ];
 
     try {
