@@ -18,16 +18,17 @@ export class UserSeeder {
   async clear() {
     console.log('Clearing all users...');
     // Hapus relasi user_roles terlebih dahulu menggunakan query langsung
-    const queryRunner = this.userRepository.manager.connection.createQueryRunner();
+    const queryRunner =
+      this.userRepository.manager.connection.createQueryRunner();
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-      
+
       // Skip truncating junction table since we're using a direct ManyToOne relationship
       // Just truncate the users table which will handle the foreign key
       // Kemudian hapus users
       await queryRunner.query('TRUNCATE TABLE "users" CASCADE');
-      
+
       await queryRunner.commitTransaction();
       console.log('All users cleared');
     } catch (error) {

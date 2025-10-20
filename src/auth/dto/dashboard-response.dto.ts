@@ -24,17 +24,17 @@ export class DashboardResponseDto {
           id: '1',
           startDate: '2023-01-01T00:00:00Z',
           endDate: '2023-12-31T23:59:59Z',
-          minutes: 60
+          minutes: 60,
         },
         isActive: true,
         remainingDays: 30,
-        remainingMinutes: 60
+        remainingMinutes: 60,
       },
       meta: {
         message: 'Summary trial untuk user berhasil ditemukan',
-        status: true
-      }
-    }
+        status: true,
+      },
+    },
   })
   trialSummary: any;
 
@@ -45,16 +45,16 @@ export class DashboardResponseDto {
         user_id: '1',
         totalQuota: 120,
         usedQuota: 60,
-        remainingQuota: 60
+        remainingQuota: 60,
       },
       meta: {
         options: {
           message: 'Summary quota untuk user berhasil dihitung',
           code: 200,
-          status: true
-        }
-      }
-    }
+          status: true,
+        },
+      },
+    },
   })
   quotaSummary: any;
 }

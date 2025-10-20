@@ -17,18 +17,19 @@ export class RoleSeeder {
 
   async clear() {
     console.log('Clearing all roles...');
-    
+
     // Use a transaction to handle foreign key constraints
-    const queryRunner = this.roleRepository.manager.connection.createQueryRunner();
+    const queryRunner =
+      this.roleRepository.manager.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-    
+
     try {
       // First clear the role_permissions junction table
       await queryRunner.query('TRUNCATE TABLE "role_permissions" CASCADE');
       // Then clear the roles table
       await queryRunner.query('TRUNCATE TABLE "roles" CASCADE');
-      
+
       await queryRunner.commitTransaction();
       console.log('All roles cleared');
     } catch (error) {

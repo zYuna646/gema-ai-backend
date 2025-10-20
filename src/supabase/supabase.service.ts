@@ -13,7 +13,9 @@ export class SupabaseService implements OnModuleInit {
     const supabaseKey = this.configService.get<string>('SUPABASE_KEY');
 
     if (!supabaseUrl || !supabaseKey) {
-      throw new Error('SUPABASE_URL dan SUPABASE_KEY harus dikonfigurasi di file .env');
+      throw new Error(
+        'SUPABASE_URL dan SUPABASE_KEY harus dikonfigurasi di file .env',
+      );
     }
 
     this.supabase = createClient(supabaseUrl, supabaseKey);

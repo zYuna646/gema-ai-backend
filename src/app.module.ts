@@ -19,6 +19,7 @@ import { AuthModule } from './auth/auth.module';
 import { SettingsModule } from './settings/settings.module';
 import { TrialsModule } from './trials/trials.module';
 import { QuotaModule } from './quota/quota.module';
+import { ModeModule } from './mode/mode.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { QuotaModule } from './quota/quota.module';
     SettingsModule,
     TrialsModule,
     QuotaModule,
+    ModeModule,
   ],
   controllers: [AppController],
   providers: [

@@ -31,12 +31,12 @@ export class UsersService {
     // Buat user dengan role_id yang benar
     const user = this.userRepository.create({
       ...createUserDto,
-      role: { id: createUserDto.role_id }
+      role: { id: createUserDto.role_id },
     });
-    
+
     // Simpan user dan load relasi role
     const savedUser = await this.userRepository.save(user);
-    
+
     // Return user dengan relasi role
     return this.userRepository.findOne({
       where: { id: savedUser.id },
@@ -49,20 +49,20 @@ export class UsersService {
     const skip = (page - 1) * perPage;
 
     let whereCondition: any = {};
-    
+
     if (search) {
       whereCondition = [
-        { name: Like(`%${search}%`) }, 
-        { email: Like(`%${search}%`) }
+        { name: Like(`%${search}%`) },
+        { email: Like(`%${search}%`) },
       ];
     }
-    
+
     if (role_id) {
       if (Array.isArray(whereCondition)) {
         // Jika whereCondition adalah array (karena ada search)
-        whereCondition = whereCondition.map(condition => ({
+        whereCondition = whereCondition.map((condition) => ({
           ...condition,
-          role: { id: role_id }
+          role: { id: role_id },
         }));
       } else {
         // Jika whereCondition adalah object

@@ -12,18 +12,19 @@ export class PermissionSeeder {
 
   async clear() {
     console.log('Clearing all permissions...');
-    
+
     // Use a transaction to handle foreign key constraints
-    const queryRunner = this.permissionRepository.manager.connection.createQueryRunner();
+    const queryRunner =
+      this.permissionRepository.manager.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-    
+
     try {
       // First clear the role_permissions junction table
       await queryRunner.query('TRUNCATE TABLE "role_permissions" CASCADE');
       // Then clear the permissions table
       await queryRunner.query('TRUNCATE TABLE "permissions" CASCADE');
-      
+
       await queryRunner.commitTransaction();
       console.log('All permissions cleared');
     } catch (error) {
@@ -62,6 +63,10 @@ export class PermissionSeeder {
       { name: 'Read Quota', slug: 'read-quota' },
       { name: 'Update Quota', slug: 'update-quota' },
       { name: 'Delete Quota', slug: 'delete-quota' },
+      { name: 'Create Mode', slug: 'create-mode' },
+      { name: 'Read Mode', slug: 'read-mode' },
+      { name: 'Update Mode', slug: 'update-mode' },
+      { name: 'Delete Mode', slug: 'delete-mode' },
     ];
 
     try {

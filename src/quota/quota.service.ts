@@ -142,7 +142,7 @@ export class QuotaService {
 
     // Mendapatkan quota yang sudah digunakan (untuk sementara diisi 0)
     const usedQuota = 0;
-    
+
     // Menghitung sisa quota
     const totalQuota = Number(totalResult.totalMinutes) || 0;
     const remainingQuota = totalQuota - usedQuota;
@@ -152,7 +152,7 @@ export class QuotaService {
         user_id: userId,
         totalQuota,
         usedQuota,
-        remainingQuota
+        remainingQuota,
       },
       meta: {
         options: {
