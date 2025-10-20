@@ -8,6 +8,7 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { RolesService } from '../roles/roles.service';
 import { TrialsService } from '../trials/trials.service';
 import { QuotaService } from 'src/quota/quota.service';
+import { DashboardResponseDto } from './dto/dashboard-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -80,7 +81,7 @@ export class AuthService {
       minutes: trial.minutes,
       model_name: trial.constructor.name,
       model_id: trial.id,
-    })
+    });
 
     const payload = { sub: user.id, email: user.email };
 
@@ -148,6 +149,27 @@ export class AuthService {
       email: user.email,
       role: user.role,
       permissions: user.role ? user.role.permissions : [],
+    };
+  }
+
+  async getDashboard(userId: string): Promise<DashboardResponseDto> {
+    // Mendapatkan data user
+    const user = await this.usersService.findOne(userId);
+
+    // Mendapatkan data trial summary
+    const trialSummary = await this.trialsService.getSummaryByUserId(userId);
+
+    // Mendapatkan data quota summary
+    const quotaSummary = await this.qoutaService.getSummaryByUserId(userId);
+
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+      trialSummary,
+      quotaSummary,
     };
   }
 }

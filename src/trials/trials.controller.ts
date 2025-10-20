@@ -108,6 +108,20 @@ export class TrialsController {
     return this.trialsService.getActiveByUserId(userId, filterDto);
   }
 
+  @Get('user/:userId/summary')
+  @ApiOperation({ summary: 'Get trial summary by user ID' })
+  @ApiParam({ name: 'userId', description: 'User ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return trial summary by user ID',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('read-trial')
+  getSummaryByUserId(@Param('userId') userId: string) {
+    return this.trialsService.getSummaryByUserId(userId);
+  }
+
   @Get('history/user/:userId')
   @ApiOperation({ summary: 'Get trial history by user id' })
   @ApiParam({ name: 'userId', description: 'User ID' })

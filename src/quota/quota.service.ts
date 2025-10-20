@@ -132,6 +132,38 @@ export class QuotaService {
     };
   }
 
+  async getSummaryByUserId(userId: string) {
+    // Mendapatkan total quota
+    const totalResult = await this.quotaRepository
+      .createQueryBuilder('quota')
+      .select('SUM(quota.minutes)', 'totalMinutes')
+      .where('quota.user_id = :userId', { userId })
+      .getRawOne();
+
+    // Mendapatkan quota yang sudah digunakan (untuk sementara diisi 0)
+    const usedQuota = 0;
+    
+    // Menghitung sisa quota
+    const totalQuota = Number(totalResult.totalMinutes) || 0;
+    const remainingQuota = totalQuota - usedQuota;
+
+    return {
+      data: {
+        user_id: userId,
+        totalQuota,
+        usedQuota,
+        remainingQuota
+      },
+      meta: {
+        options: {
+          message: `Summary quota untuk user dengan ID ${userId} berhasil dihitung`,
+          code: HttpStatus.OK,
+          status: true,
+        },
+      },
+    };
+  }
+
   async update(id: string, updateQuotaDto: UpdateQuotaDto) {
     const quota = await this.findOne(id);
     this.quotaRepository.merge(quota, updateQuotaDto);

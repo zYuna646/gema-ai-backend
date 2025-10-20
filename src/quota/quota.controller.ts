@@ -133,6 +133,21 @@ export class QuotaController {
     return this.quotaService.getTotalMinutesByUserId(userId);
   }
 
+  @ApiOperation({ summary: 'Get quota summary by user ID' })
+  @ApiParam({ name: 'userId', description: 'User ID' })
+  @ApiResponse({ status: 200, description: 'Return quota summary for user' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - insufficient permissions',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('read-quota')
+  @Get('user/:userId/summary')
+  getSummaryByUserId(@Param('userId') userId: string) {
+    return this.quotaService.getSummaryByUserId(userId);
+  }
+
   @ApiOperation({ summary: 'Update a quota' })
   @ApiParam({ name: 'id', description: 'Quota ID' })
   @ApiResponse({ status: 200, description: 'Quota updated successfully' })

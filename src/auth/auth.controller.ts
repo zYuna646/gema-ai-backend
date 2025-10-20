@@ -22,6 +22,7 @@ import {
   ApiHeader,
 } from '@nestjs/swagger';
 import { AuthResponseDto } from './dto/auth-response.dto';
+import { DashboardResponseDto } from './dto/dashboard-response.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -117,5 +118,19 @@ export class AuthController {
   getProfile(@Req() req: RequestWithUser) {
     console.log('User from request:', req.user);
     return this.authService.getProfile(req.user.id);
+  }
+
+  @ApiOperation({ summary: 'Get user dashboard information' })
+  @ApiResponse({
+    status: 200,
+    description: 'Dashboard information retrieved successfully',
+    type: DashboardResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('dashboard')
+  getDashboard(@Req() req: RequestWithUser) {
+    return this.authService.getDashboard(req.user.id);
   }
 }
