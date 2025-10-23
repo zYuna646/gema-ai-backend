@@ -5,7 +5,10 @@ import {
   IsString,
   MinLength,
   IsUUID,
+  IsEnum,
+  IsOptional,
 } from 'class-validator';
+import { SoundType } from '../entities/user.entity';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'John Doe', description: 'Nama pengguna' })
@@ -30,4 +33,13 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Role ID tidak boleh kosong' })
   @IsUUID(4, { message: 'Format Role ID tidak valid' })
   role_id: string;
+
+  @ApiProperty({
+    enum: SoundType,
+    default: SoundType.ALLOY,
+    description: 'Tipe suara untuk text-to-speech',
+  })
+  @IsOptional()
+  @IsEnum(SoundType, { message: 'Tipe suara tidak valid' })
+  sound_type?: SoundType;
 }

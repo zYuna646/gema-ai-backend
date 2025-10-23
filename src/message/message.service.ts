@@ -12,7 +12,7 @@ import { exec } from 'child_process';
 @Injectable()
 export class MessageService {
   private execPromise = promisify(exec);
-  
+
   constructor(
     @InjectRepository(Message)
     private messageRepository: Repository<Message>,
@@ -24,11 +24,11 @@ export class MessageService {
       const { stdout } = await this.execPromise(
         `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${filePath}"`,
       );
-      
+
       // Konversi durasi dari detik ke menit
       const durationInSeconds = parseFloat(stdout.trim());
       const durationInMinutes = durationInSeconds / 60;
-      
+
       return parseFloat(durationInMinutes.toFixed(2));
     } catch (error) {
       console.error('Error getting audio duration:', error);
@@ -44,9 +44,14 @@ export class MessageService {
 
     if (audioFile) {
       messageData.audio_file = audioFile.filename;
-      
+
       // Hitung durasi audio jika file audio ada
-      const audioFilePath = path.join(process.cwd(), 'uploads', 'audio', audioFile.filename);
+      const audioFilePath = path.join(
+        process.cwd(),
+        'uploads',
+        'audio',
+        audioFile.filename,
+      );
       if (fs.existsSync(audioFilePath)) {
         const durationInMinutes = await this.getAudioDuration(audioFilePath);
         messageData.audio_minutes = durationInMinutes;

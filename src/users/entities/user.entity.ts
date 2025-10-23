@@ -12,6 +12,15 @@ import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../../roles/entities/role.entity';
 
+export enum SoundType {
+  ALLOY = 'alloy',
+  VERSE = 'verse',
+  CORAL = 'coral',
+  SAGE = 'sage',
+  AMBER = 'amber',
+  ONYX = 'onyx',
+}
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -36,6 +45,13 @@ export class User {
   @ManyToOne(() => Role)
   @JoinColumn({ name: 'role_id' })
   role: Role;
+
+  @Column({
+    type: 'enum',
+    enum: SoundType,
+    default: SoundType.ALLOY,
+  })
+  sound_type: SoundType;
 
   @BeforeInsert()
   async hashPassword() {

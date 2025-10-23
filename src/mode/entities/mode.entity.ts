@@ -14,6 +14,9 @@ export class Mode {
   @Column({ unique: true })
   name: string;
 
+  @Column({ nullable: true })
+  desc: string;
+
   @Column()
   context: string;
 

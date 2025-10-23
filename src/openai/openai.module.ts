@@ -1,14 +1,16 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { OpenaiService } from './openai.service';
 import { OpenaiController } from './openai.controller';
 import openaiConfig from './config/openai.config';
-import { OpenAIRealtimeGateway } from './gateways/openai-realtime.gateway';
+import { OpenAIRealtimeService } from './openai-realtime.service';
 
 @Module({
   imports: [
     ConfigModule.forFeature(openaiConfig),
+    EventEmitterModule.forRoot(),
     ClientsModule.register([
       {
         name: 'OPENAI_SERVICE',
@@ -21,7 +23,7 @@ import { OpenAIRealtimeGateway } from './gateways/openai-realtime.gateway';
     ]),
   ],
   controllers: [OpenaiController],
-  providers: [OpenaiService, OpenAIRealtimeGateway],
-  exports: [OpenaiService],
+  providers: [OpenaiService, OpenAIRealtimeService],
+  exports: [OpenaiService, OpenAIRealtimeService],
 })
 export class OpenaiModule {}

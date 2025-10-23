@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PermissionsModule } from './permissions/permissions.module';
@@ -23,12 +25,22 @@ import { ModeModule } from './mode/mode.module';
 import { ConversationModule } from './conversation/conversation.module';
 import { OpenaiModule } from './openai/openai.module';
 import { MessageModule } from './message/message.module';
+import { OpenAIRealtimeGateway } from './gateways/openai-realtime.gateway';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    EventEmitterModule.forRoot(),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '24h' },
+      }),
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -61,6 +73,7 @@ import { MessageModule } from './message/message.module';
     UserSeeder,
     SettingSeeder,
     SeedCommand,
+    OpenAIRealtimeGateway,
   ],
   exports: [
     PermissionSeeder,

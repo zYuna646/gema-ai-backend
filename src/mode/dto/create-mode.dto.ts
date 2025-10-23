@@ -17,6 +17,14 @@ export class CreateModeDto {
   name: string;
 
   @ApiProperty({
+    example: 'Deskripsi singkat tentang mode',
+    description: 'Deskripsi mode',
+  })
+  @IsOptional()
+  @IsString()
+  desc: string;
+
+  @ApiProperty({
     example: 'Mode untuk menghasilkan konten kreatif',
     description: 'Context mode',
   })
