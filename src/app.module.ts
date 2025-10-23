@@ -22,6 +22,7 @@ import { QuotaModule } from './quota/quota.module';
 import { ModeModule } from './mode/mode.module';
 import { ConversationModule } from './conversation/conversation.module';
 import { OpenaiModule } from './openai/openai.module';
+import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { OpenaiModule } from './openai/openai.module';
     ModeModule,
     ConversationModule,
     OpenaiModule,
+    MessageModule,
   ],
   controllers: [AppController],
   providers: [
