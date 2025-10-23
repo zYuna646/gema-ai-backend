@@ -1,0 +1,57 @@
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Max,
+  Min,
+} from 'class-validator';
+
+export class MessageDto {
+  @ApiProperty({
+    description: 'ID percakapan',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @IsNotEmpty()
+  @IsUUID()
+  conversationId: string;
+
+  @ApiProperty({
+    description: 'Konten pesan',
+    example: 'Bagaimana cara membuat aplikasi dengan NestJS?',
+  })
+  @IsNotEmpty()
+  @IsString()
+  content: string;
+
+  @ApiProperty({
+    description: 'Model OpenAI yang akan digunakan',
+    example: 'gpt-4o',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  model?: string;
+
+  @ApiProperty({
+    description: 'Temperature untuk respons OpenAI (0.0-1.0)',
+    example: 0.7,
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(1)
+  temperature?: number;
+
+  @ApiProperty({
+    description: 'Jumlah maksimum token untuk respons',
+    example: 2000,
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  maxTokens?: number;
+}

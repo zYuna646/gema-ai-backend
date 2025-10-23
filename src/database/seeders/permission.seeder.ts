@@ -71,6 +71,10 @@ export class PermissionSeeder {
       { name: 'Read Conversation', slug: 'read-conversation' },
       { name: 'Update Conversation', slug: 'update-conversation' },
       { name: 'Delete Conversation', slug: 'delete-conversation' },
+      { name: 'Create OpenAI', slug: 'create-openai' },
+      { name: 'Read OpenAI', slug: 'read-openai' },
+      { name: 'Update OpenAI', slug: 'update-openai' },
+      { name: 'Delete OpenAI', slug: 'delete-openai' },
     ];
 
     try {

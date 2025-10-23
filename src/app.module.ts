@@ -21,6 +21,7 @@ import { TrialsModule } from './trials/trials.module';
 import { QuotaModule } from './quota/quota.module';
 import { ModeModule } from './mode/mode.module';
 import { ConversationModule } from './conversation/conversation.module';
+import { OpenaiModule } from './openai/openai.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { ConversationModule } from './conversation/conversation.module';
     QuotaModule,
     ModeModule,
     ConversationModule,
+    OpenaiModule,
   ],
   controllers: [AppController],
   providers: [

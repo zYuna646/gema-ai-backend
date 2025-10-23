@@ -14,24 +14,29 @@ export class ConversationService {
   ) {}
 
   async create(createConversationDto: CreateConversationDto) {
-    const conversation = this.conversationRepository.create(createConversationDto);
+    const conversation = this.conversationRepository.create(
+      createConversationDto,
+    );
     return await this.conversationRepository.save(conversation);
   }
 
   async findAll(filterConversationDto: FilterConversationDto) {
     const { name, mode_id } = filterConversationDto;
-    const queryBuilder = this.conversationRepository.createQueryBuilder('conversation');
-    
+    const queryBuilder =
+      this.conversationRepository.createQueryBuilder('conversation');
+
     if (name) {
-      queryBuilder.andWhere('conversation.name LIKE :name', { name: `%${name}%` });
+      queryBuilder.andWhere('conversation.name LIKE :name', {
+        name: `%${name}%`,
+      });
     }
-    
+
     if (mode_id) {
       queryBuilder.andWhere('conversation.mode_id = :mode_id', { mode_id });
     }
-    
+
     queryBuilder.leftJoinAndSelect('conversation.mode', 'mode');
-    
+
     return await queryBuilder.getMany();
   }
 
@@ -40,25 +45,25 @@ export class ConversationService {
       where: { id },
       relations: ['mode'],
     });
-    
+
     if (!conversation) {
       throw new NotFoundException(`Conversation with ID ${id} not found`);
     }
-    
+
     return conversation;
   }
 
   async update(id: string, updateConversationDto: UpdateConversationDto) {
     const conversation = await this.findOne(id);
-    
+
     Object.assign(conversation, updateConversationDto);
-    
+
     return await this.conversationRepository.save(conversation);
   }
 
   async remove(id: string) {
     const conversation = await this.findOne(id);
-    
+
     return await this.conversationRepository.remove(conversation);
   }
 }

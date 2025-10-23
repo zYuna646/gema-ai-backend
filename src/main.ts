@@ -3,8 +3,34 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Transport, MicroserviceOptions } from '@nestjs/microservices';
+import { OpenaiModule } from './openai/openai.module';
+import { Logger } from '@nestjs/common';
+
+// Fungsi untuk menjalankan OpenAI microservice
+async function bootstrapOpenAIMicroservice() {
+  const logger = new Logger('OpenAI Microservice');
+
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+    OpenaiModule,
+    {
+      transport: Transport.TCP,
+      options: {
+        host: 'localhost',
+        port: 3001,
+      },
+    },
+  );
+
+  await app.listen();
+  logger.log('OpenAI Microservice is running on: localhost:3001');
+}
 
 async function bootstrap() {
+  // Jalankan OpenAI microservice
+  bootstrapOpenAIMicroservice().catch((err) => {
+    console.error('Failed to start OpenAI microservice:', err);
+  });
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = configService.get('PORT') || 3000;
