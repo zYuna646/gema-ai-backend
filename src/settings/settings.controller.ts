@@ -17,6 +17,7 @@ import {
   ApiResponse,
   ApiParam,
   ApiBearerAuth,
+  ApiOkResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
@@ -53,6 +54,40 @@ export class SettingsController {
   @Get()
   findAll() {
     return this.settingsService.findAll();
+  }
+
+  @ApiOperation({ summary: 'Get available OpenAI models' })
+  @ApiOkResponse({
+    description: 'Returns a list of available OpenAI models',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', example: 'gpt-4o' },
+              object: { type: 'string', example: 'model' },
+              created: { type: 'integer', example: 1677610602 },
+              owned_by: { type: 'string', example: 'openai' },
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 500, description: 'Failed to fetch available models' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - insufficient permissions',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('read-openai-models')
+  @Get('available-models')
+  getAvailableModels() {
+    return this.settingsService.getAvailableModels();
   }
 
   @ApiOperation({ summary: 'Get a setting by ID' })
@@ -120,8 +155,8 @@ export class SettingsController {
     return this.settingsService.initialize(createSettingDto);
   }
 
-  @ApiOperation({ summary: 'Get latest settings' })
-  @ApiResponse({ status: 200, description: 'Return the latest settings' })
+  @ApiOperation({ summary: 'Get the latest setting' })
+  @ApiResponse({ status: 200, description: 'Return the latest setting' })
   @ApiResponse({ status: 404, description: 'No settings found' })
   @ApiResponse({
     status: 403,

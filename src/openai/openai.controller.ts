@@ -34,4 +34,9 @@ export class OpenaiController {
   textToSpeech(@Payload() data: { text: string }) {
     return this.openaiService.textToSpeech(data.text);
   }
+
+  @MessagePattern('openai.get_models')
+  getModels() {
+    return this.openaiService.getAvailableModels();
+  }
 }

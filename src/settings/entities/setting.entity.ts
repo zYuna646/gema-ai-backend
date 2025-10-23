@@ -21,6 +21,17 @@ export class Setting {
   @ApiProperty({ description: 'Number of trial minutes' })
   trial_minutes: number;
 
+  @Column({ type: 'varchar', length: 50, default: 'gpt-4o' })
+  @ApiProperty({ description: 'Default OpenAI model', example: 'gpt-4o' })
+  model: string;
+
+  @Column({ type: 'int', default: 2000 })
+  @ApiProperty({
+    description: 'Default max tokens for OpenAI requests',
+    example: 2000,
+  })
+  max_tokens: number;
+
   @CreateDateColumn()
   @ApiProperty({ description: 'Creation timestamp' })
   created_at: Date;

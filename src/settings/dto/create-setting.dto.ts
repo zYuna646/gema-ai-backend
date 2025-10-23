@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsNotEmpty, Min } from 'class-validator';
+import {
+  IsNumber,
+  IsNotEmpty,
+  Min,
+  IsString,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateSettingDto {
   @ApiProperty({ description: 'Number of trial days', example: 30 })
@@ -13,4 +19,23 @@ export class CreateSettingDto {
   @IsNumber()
   @Min(0)
   trial_minutes: number;
+
+  @ApiProperty({
+    description: 'Default OpenAI model',
+    example: 'gpt-4o',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  model?: string;
+
+  @ApiProperty({
+    description: 'Default max tokens for OpenAI requests',
+    example: 2000,
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  max_tokens?: number;
 }

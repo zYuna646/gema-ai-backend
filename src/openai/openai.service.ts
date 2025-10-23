@@ -334,4 +334,20 @@ export class OpenaiService {
       return { error: error.message };
     }
   }
+
+  /**
+   * Get available models from OpenAI
+   */
+  async getAvailableModels() {
+    try {
+      const models = await this.openai.models.list();
+      return models.data;
+    } catch (error) {
+      this.logger.error(
+        `Error fetching OpenAI models: ${error.message}`,
+        error.stack,
+      );
+      return { error: error.message };
+    }
+  }
 }

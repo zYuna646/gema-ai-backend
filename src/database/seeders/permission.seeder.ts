@@ -75,6 +75,7 @@ export class PermissionSeeder {
       { name: 'Read OpenAI', slug: 'read-openai' },
       { name: 'Update OpenAI', slug: 'update-openai' },
       { name: 'Delete OpenAI', slug: 'delete-openai' },
+      { name: 'Read OpenAI Models', slug: 'read-openai-models' },
     ];
 
     try {

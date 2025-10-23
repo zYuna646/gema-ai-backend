@@ -1,15 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateSettingDto } from './dto/create-setting.dto';
 import { UpdateSettingDto } from './dto/update-setting.dto';
 import { Setting } from './entities/setting.entity';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class SettingsService {
   constructor(
     @InjectRepository(Setting)
     private settingsRepository: Repository<Setting>,
+    @Inject('OPENAI_SERVICE') private openaiClient: ClientProxy,
   ) {}
 
   async create(createSettingDto: CreateSettingDto): Promise<Setting> {
@@ -70,5 +73,15 @@ export class SettingsService {
     }
 
     return settings[0];
+  }
+
+  async getAvailableModels() {
+    try {
+      return await firstValueFrom(
+        this.openaiClient.send('openai.get_models', {}),
+      );
+    } catch (error) {
+      throw new Error(`Failed to fetch available models: ${error.message}`);
+    }
   }
 }
