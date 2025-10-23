@@ -12,11 +12,13 @@ import { PermissionSeeder } from './database/seeders/permission.seeder';
 import { RoleSeeder } from './database/seeders/role.seeder';
 import { UserSeeder } from './database/seeders/user.seeder';
 import { SettingSeeder } from './database/seeders/setting.seeder';
+import { ModeSeeder } from './database/seeders/mode.seeder';
 import { SeedCommand } from './database/seeders/seed.command';
 import { Permission } from './permissions/entities/permission.entity';
 import { Role } from './roles/entities/role.entity';
 import { User } from './users/entities/user.entity';
 import { Setting } from './settings/entities/setting.entity';
+import { Mode } from './mode/entities/mode.entity';
 import { AuthModule } from './auth/auth.module';
 import { SettingsModule } from './settings/settings.module';
 import { TrialsModule } from './trials/trials.module';
@@ -52,7 +54,7 @@ import { OpenAIRealtimeGateway } from './gateways/openai-realtime.gateway';
         synchronize: configService.get('NODE_ENV') !== 'production',
       }),
     }),
-    TypeOrmModule.forFeature([Permission, Role, User, Setting]),
+    TypeOrmModule.forFeature([Permission, Role, User, Setting, Mode]),
     PermissionsModule,
     RolesModule,
     UsersModule,
@@ -72,6 +74,7 @@ import { OpenAIRealtimeGateway } from './gateways/openai-realtime.gateway';
     RoleSeeder,
     UserSeeder,
     SettingSeeder,
+    ModeSeeder,
     SeedCommand,
     OpenAIRealtimeGateway,
   ],
@@ -80,6 +83,7 @@ import { OpenAIRealtimeGateway } from './gateways/openai-realtime.gateway';
     RoleSeeder,
     UserSeeder,
     SettingSeeder,
+    ModeSeeder,
     SeedCommand,
   ],
 })

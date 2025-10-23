@@ -4,6 +4,7 @@ import { UserSeeder } from './user.seeder';
 import { RoleSeeder } from './role.seeder';
 import { PermissionSeeder } from './permission.seeder';
 import { SettingSeeder } from './setting.seeder';
+import { ModeSeeder } from './mode.seeder';
 
 @Injectable()
 @Command({ name: 'seed', description: 'Seed database with initial data' })
@@ -13,6 +14,7 @@ export class SeedCommand extends CommandRunner {
     private roleSeeder: RoleSeeder,
     private permissionSeeder: PermissionSeeder,
     private settingSeeder: SettingSeeder,
+    private modeSeeder: ModeSeeder,
   ) {
     super();
   }
@@ -27,12 +29,14 @@ export class SeedCommand extends CommandRunner {
       await this.roleSeeder.clear();
       await this.permissionSeeder.clear();
       await this.settingSeeder.clear();
+      await this.modeSeeder.clear();
 
       console.log('All existing data cleared');
 
       // Menjalankan user seeder (yang akan menjalankan role dan permission seeder)
       await this.userSeeder.seed();
       await this.settingSeeder.seed();
+      await this.modeSeeder.seed();
 
       console.log('Database seeding completed successfully');
     } catch (error) {

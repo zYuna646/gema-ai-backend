@@ -20,7 +20,7 @@ export class SettingSeeder {
     const setting = {
       trial_day: 7,
       trial_minutes: 100,
-      model: 'gpt-4o',
+      model: 'gpt-realtime-mini',
       max_tokens: 2000,
     };
 

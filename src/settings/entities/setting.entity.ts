@@ -21,7 +21,7 @@ export class Setting {
   @ApiProperty({ description: 'Number of trial minutes' })
   trial_minutes: number;
 
-  @Column({ type: 'varchar', length: 50, default: 'gpt-4o' })
+  @Column({ type: 'varchar', length: 50, default: 'gpt-realtime-mini' })
   @ApiProperty({ description: 'Default OpenAI model', example: 'gpt-4o' })
   model: string;
 

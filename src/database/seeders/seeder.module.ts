@@ -4,10 +4,12 @@ import { Permission } from '../../permissions/entities/permission.entity';
 import { Role } from '../../roles/entities/role.entity';
 import { User } from '../../users/entities/user.entity';
 import { Setting } from '../../settings/entities/setting.entity';
+import { Mode } from '../../mode/entities/mode.entity';
 import { PermissionSeeder } from './permission.seeder';
 import { RoleSeeder } from './role.seeder';
 import { UserSeeder } from './user.seeder';
 import { SettingSeeder } from './setting.seeder';
+import { ModeSeeder } from './mode.seeder';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
@@ -23,12 +25,24 @@ import { ConfigModule } from '@nestjs/config';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [Permission, Role, User, Setting],
+      entities: [Permission, Role, User, Setting, Mode],
       synchronize: process.env.NODE_ENV !== 'production',
     }),
-    TypeOrmModule.forFeature([Permission, Role, User, Setting]),
+    TypeOrmModule.forFeature([Permission, Role, User, Setting, Mode]),
   ],
-  providers: [PermissionSeeder, RoleSeeder, UserSeeder, SettingSeeder],
-  exports: [PermissionSeeder, RoleSeeder, UserSeeder, SettingSeeder],
+  providers: [
+    PermissionSeeder,
+    RoleSeeder,
+    UserSeeder,
+    SettingSeeder,
+    ModeSeeder,
+  ],
+  exports: [
+    PermissionSeeder,
+    RoleSeeder,
+    UserSeeder,
+    SettingSeeder,
+    ModeSeeder,
+  ],
 })
 export class SeederModule {}

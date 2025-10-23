@@ -33,15 +33,36 @@ export class OpenAIRealtimeService implements OnModuleInit {
   @OnEvent('init_openai_connection')
   async handleInitConnection(data: {
     clientId: string;
+    userId?: string;
+    modeId?: string;
+    mode?: {
+      context: string;
+      temperature: number;
+      role: string;
+    } | null;
     voice: string;
     model: string;
+    temperature: number;
+    maxTokens: number;
     inputAudioFormat: string;
     inputAudioSampleRate: number;
   }) {
-    const { clientId, voice, model, inputAudioFormat, inputAudioSampleRate } =
-      data;
+    const {
+      clientId,
+      userId,
+      modeId,
+      mode,
+      voice,
+      model,
+      temperature,
+      maxTokens,
+      inputAudioFormat,
+      inputAudioSampleRate,
+    } = data;
 
-    this.logger.log(`Initializing OpenAI connection for client: ${clientId}`);
+    this.logger.log(
+      `Initializing OpenAI connection for client: ${clientId}${userId ? ` (User: ${userId})` : ''}${modeId ? ` (Mode: ${modeId})` : ''}`,
+    );
 
     const apiKey = this.configService.get<string>('openai.apiKey');
     if (!apiKey) {
@@ -71,7 +92,7 @@ export class OpenAIRealtimeService implements OnModuleInit {
       this.eventEmitter.emit('openai_ready', { clientId, model, voice });
 
       // Send session update
-      const sessionUpdate = {
+      const sessionUpdate: any = {
         type: 'session.update',
         session: {
           modalities: ['text', 'audio'],
@@ -79,8 +100,16 @@ export class OpenAIRealtimeService implements OnModuleInit {
           input_audio_format: inputAudioFormat,
           input_audio_sample_rate: inputAudioSampleRate,
           output_audio_format: outputAudioFormat,
+          temperature,
+          max_output_tokens: maxTokens,
         },
       };
+
+      // Add mode context as system instructions if available
+      if (mode?.context) {
+        sessionUpdate.session.instructions = mode.context;
+      }
+
       ws.send(JSON.stringify(sessionUpdate));
     });
 

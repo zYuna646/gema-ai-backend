@@ -14,13 +14,17 @@ import { SettingsService } from '../settings/settings.service';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { MessageService } from '../message/message.service';
+import { OpenaiService } from '../openai/openai.service';
+import { ModeService } from '../mode/mode.service';
 
 interface ClientSession {
   clientId: string;
   userId?: string;
+  modeId?: string; // Store mode ID for the session
   isActive: boolean;
   bufferCount: number;
   createdAt: Date;
+  audioChunks: string[]; // Store audio chunks for transcription
 }
 
 @Injectable()
@@ -41,6 +45,8 @@ export class OpenAIRealtimeGateway
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly messageService: MessageService,
+    private readonly openaiService: OpenaiService,
+    private readonly modeService: ModeService,
   ) {
     // Listen untuk response dari OpenAI Microservice
     this.eventEmitter.on(
@@ -60,6 +66,9 @@ export class OpenAIRealtimeGateway
       let userId: string | undefined;
       let user: any;
 
+      // Extract mode_id from query parameters
+      const modeId = client.handshake.query?.mode_id as string;
+
       // Try to authenticate user if token is provided
       if (token) {
         try {
@@ -72,6 +81,25 @@ export class OpenAIRealtimeGateway
           this.logger.warn(
             `Invalid token for client ${client.id}: ${error.message}`,
           );
+        }
+      }
+
+      // Get mode settings if mode_id is provided
+      let mode: any = null;
+      if (modeId) {
+        try {
+          mode = await this.modeService.findOne(modeId);
+          this.logger.log(`Mode loaded for client ${client.id}: ${mode.name}`);
+        } catch (error) {
+          this.logger.warn(
+            `Invalid mode_id ${modeId} for client ${client.id}: ${error.message}`,
+          );
+          client.emit('error', {
+            message: 'Invalid mode_id provided',
+            error: error.message,
+          });
+          client.disconnect();
+          return;
         }
       }
 
@@ -92,6 +120,9 @@ export class OpenAIRealtimeGateway
         (client.handshake.query.model as string) ||
         'gpt-4o-realtime-preview';
 
+      // Use temperature from mode or default
+      const temperature = mode?.temperature ?? 0.7;
+
       // Use max_tokens from settings
       const maxTokens = settings?.max_tokens || 2000;
 
@@ -102,16 +133,18 @@ export class OpenAIRealtimeGateway
         : 16000;
 
       this.logger.log(
-        `Client connected: ${client.id}${userId ? ` (User: ${userId})` : ''}`,
+        `Client connected: ${client.id}${userId ? ` (User: ${userId})` : ''}${modeId ? ` (Mode: ${mode?.name})` : ''}`,
       );
 
       // Buat session untuk client
       const session: ClientSession = {
         clientId: client.id,
         userId,
+        modeId,
         isActive: true,
         bufferCount: 0,
         createdAt: new Date(),
+        audioChunks: [], // Initialize audio chunks array
       };
 
       this.sessions.set(client.id, session);
@@ -120,15 +153,24 @@ export class OpenAIRealtimeGateway
       this.eventEmitter.emit('init_openai_connection', {
         clientId: client.id,
         userId,
+        modeId,
+        mode: mode
+          ? {
+              context: mode.context,
+              temperature: mode.temperature,
+              role: mode.role,
+            }
+          : null,
         voice,
         model,
+        temperature,
         maxTokens,
         inputAudioFormat,
         inputAudioSampleRate,
       });
 
       this.logger.log(
-        `Session created for client ${client.id} with voice: ${voice}, model: ${model}, maxTokens: ${maxTokens}${userId ? `, user: ${userId}` : ''}`,
+        `Session created for client ${client.id} with voice: ${voice}, model: ${model}, temperature: ${temperature}, maxTokens: ${maxTokens}${userId ? `, user: ${userId}` : ''}${mode ? `, mode: ${mode.name} (${mode.role})` : ''}`,
       );
     } catch (error) {
       this.logger.error(
@@ -183,6 +225,9 @@ export class OpenAIRealtimeGateway
       base64 = Buffer.from(payload as ArrayBuffer).toString('base64');
     }
 
+    // Store audio chunk for transcription
+    session.audioChunks.push(base64);
+
     // Log audio chunk received
     this.logger.debug(
       `Audio chunk received from client ${client.id}, size: ${base64.length}`,
@@ -210,17 +255,54 @@ export class OpenAIRealtimeGateway
 
     this.logger.log(`Audio commit requested by client ${client.id}`);
 
-    // Create message record for user audio input
-    if (session.userId && session.bufferCount > 0) {
+    // Create message record for user audio input with transcription
+    if (
+      session.userId &&
+      session.bufferCount > 0 &&
+      session.audioChunks.length > 0
+    ) {
       try {
+        // Combine all audio chunks into a single base64 string
+        const combinedAudio = session.audioChunks.join('');
+        const audioBase64 = `data:audio/wav;base64,${combinedAudio}`;
+
+        // Transcribe the audio using OpenAI service
+        const transcriptionResult = await this.openaiService.transcribeAudio({
+          audioBase64,
+          conversationId: session.clientId,
+        });
+
+        let content = '[Audio Input]';
+        if (transcriptionResult && transcriptionResult.transcription) {
+          content = transcriptionResult.transcription;
+        }
+
         await this.messageService.create({
           user_id: session.userId,
-          content: '[Audio Input]',
+          content: content,
           is_ai: false,
         });
-        this.logger.log(`User audio message recorded for user ${session.userId}`);
+
+        this.logger.log(
+          `User audio message recorded for user ${session.userId} with transcription: ${content.substring(0, 50)}...`,
+        );
       } catch (error) {
-        this.logger.error(`Failed to create user audio message: ${error.message}`);
+        this.logger.error(
+          `Failed to create user audio message: ${error.message}`,
+        );
+
+        // Fallback: create message without transcription
+        try {
+          await this.messageService.create({
+            user_id: session.userId,
+            content: '[Audio Input - Transcription Failed]',
+            is_ai: false,
+          });
+        } catch (fallbackError) {
+          this.logger.error(
+            `Failed to create fallback message: ${fallbackError.message}`,
+          );
+        }
       }
     }
 
@@ -229,6 +311,8 @@ export class OpenAIRealtimeGateway
       clientId: client.id,
     });
 
+    // Clear audio chunks and reset buffer count
+    session.audioChunks = [];
     session.bufferCount = 0;
   }
 
@@ -261,9 +345,13 @@ export class OpenAIRealtimeGateway
           content: text,
           is_ai: false,
         });
-        this.logger.log(`User text message recorded for user ${session.userId}`);
+        this.logger.log(
+          `User text message recorded for user ${session.userId}`,
+        );
       } catch (error) {
-        this.logger.error(`Failed to create user text message: ${error.message}`);
+        this.logger.error(
+          `Failed to create user text message: ${error.message}`,
+        );
       }
     }
 
@@ -316,17 +404,29 @@ export class OpenAIRealtimeGateway
     if (session?.userId && type === 'response_done') {
       try {
         let content = '[AI Audio Response]';
-        
-        // Try to extract text content if available
+
+        // Try to extract text content from various possible payload structures
         if (payload?.response?.output?.content) {
           const textContent = payload.response.output.content
             .filter((item: any) => item.type === 'text')
             .map((item: any) => item.text)
             .join(' ');
-          
+
           if (textContent.trim()) {
             content = textContent;
           }
+        } else if (payload?.text) {
+          // Direct text response
+          content = payload.text;
+        } else if (payload?.response?.text) {
+          // Nested text response
+          content = payload.response.text;
+        } else if (payload?.transcript) {
+          // Transcript from audio response
+          content = payload.transcript;
+        } else if (payload?.response?.transcript) {
+          // Nested transcript
+          content = payload.response.transcript;
         }
 
         await this.messageService.create({
@@ -334,9 +434,53 @@ export class OpenAIRealtimeGateway
           content: content,
           is_ai: true,
         });
-        this.logger.log(`AI response message recorded for user ${session.userId}`);
+        this.logger.log(
+          `AI response message recorded for user ${session.userId} with content: ${content.substring(0, 50)}...`,
+        );
       } catch (error) {
-        this.logger.error(`Failed to create AI response message: ${error.message}`);
+        this.logger.error(
+          `Failed to create AI response message: ${error.message}`,
+        );
+
+        // Fallback: create message without content extraction
+        try {
+          await this.messageService.create({
+            user_id: session.userId,
+            content: '[AI Response - Content Extraction Failed]',
+            is_ai: true,
+          });
+        } catch (fallbackError) {
+          this.logger.error(
+            `Failed to create fallback AI message: ${fallbackError.message}`,
+          );
+        }
+      }
+    }
+
+    // Handle audio responses that need transcription
+    if (session?.userId && type === 'response_audio_base64' && payload?.audio) {
+      try {
+        // Transcribe AI audio response to get text content
+        const audioBase64 = `data:audio/wav;base64,${payload.audio}`;
+        const transcriptionResult = await this.openaiService.transcribeAudio({
+          audioBase64,
+          conversationId: session.clientId,
+        });
+
+        if (transcriptionResult?.transcription) {
+          await this.messageService.create({
+            user_id: session.userId,
+            content: transcriptionResult.transcription,
+            is_ai: true,
+          });
+          this.logger.log(
+            `AI audio response transcribed and recorded for user ${session.userId}: ${transcriptionResult.transcription.substring(0, 50)}...`,
+          );
+        }
+      } catch (error) {
+        this.logger.error(
+          `Failed to transcribe AI audio response: ${error.message}`,
+        );
       }
     }
 
