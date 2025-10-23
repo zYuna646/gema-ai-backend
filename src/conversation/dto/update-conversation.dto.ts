@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import { SoundType } from '../entities/conversation.entity';
 
 export class UpdateConversationDto {
   @ApiPropertyOptional({
@@ -22,4 +23,12 @@ export class UpdateConversationDto {
   @IsOptional()
   @IsUUID()
   user_id?: string;
+
+  @ApiPropertyOptional({
+    description: 'The sound type for the conversation',
+    enum: SoundType,
+  })
+  @IsOptional()
+  @IsEnum(SoundType)
+  sound?: SoundType;
 }

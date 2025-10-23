@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
+import { SoundType } from '../entities/conversation.entity';
 
 export class CreateConversationDto {
   @ApiProperty({
@@ -25,4 +32,14 @@ export class CreateConversationDto {
   @IsNotEmpty()
   @IsUUID()
   user_id: string;
+
+  @ApiProperty({
+    example: 'alloy',
+    description: 'The sound type for the conversation',
+    enum: SoundType,
+    default: SoundType.ALLOY,
+  })
+  @IsOptional()
+  @IsEnum(SoundType)
+  sound?: SoundType;
 }

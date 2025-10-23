@@ -7,6 +7,14 @@ import {
 } from 'typeorm';
 import { Mode } from '../../mode/entities/mode.entity';
 import { User } from '../../users/entities/user.entity';
+export enum SoundType {
+  ALLOY = 'alloy',
+  VERSE = 'verse',
+  CORAL = 'coral',
+  SAGE = 'sage',
+  AMBER = 'amber',
+  ONYX = 'onyx',
+}
 
 @Entity()
 export class Conversation {
@@ -29,4 +37,11 @@ export class Conversation {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @Column({
+    type: 'enum',
+    enum: SoundType,
+    default: SoundType.ALLOY,
+  })
+  sound: SoundType;
 }

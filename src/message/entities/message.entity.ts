@@ -5,20 +5,13 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Conversation } from '../../conversation/entities/conversation.entity';
+
 import { User } from '../../users/entities/user.entity';
 
 @Entity('messages')
 export class Message {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column()
-  conversation_id: string;
-
-  @ManyToOne(() => Conversation)
-  @JoinColumn({ name: 'conversation_id' })
-  conversation: Conversation;
 
   @Column()
   user_id: string;
@@ -32,6 +25,9 @@ export class Message {
 
   @Column({ nullable: true })
   audio_file: string;
+
+  @Column({ type: 'float', nullable: true })
+  audio_minutes: number;
 
   @Column({ default: false })
   is_ai: boolean;

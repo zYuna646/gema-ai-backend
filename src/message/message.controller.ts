@@ -47,7 +47,6 @@ export class MessageController {
     schema: {
       type: 'object',
       properties: {
-        conversation_id: { type: 'string', format: 'uuid' },
         user_id: { type: 'string', format: 'uuid' },
         content: { type: 'string' },
         is_ai: { type: 'boolean', default: false },
@@ -55,8 +54,14 @@ export class MessageController {
           type: 'string',
           format: 'binary',
         },
+        // audio_minutes akan dihitung otomatis dari file audio
+        audio_minutes: {
+          type: 'number',
+          description: 'Durasi audio dalam menit (dihitung otomatis)',
+          readOnly: true,
+        },
       },
-      required: ['conversation_id', 'user_id', 'content'],
+      required: ['user_id', 'content'],
     },
   })
   @ApiBearerAuth()
@@ -92,19 +97,6 @@ export class MessageController {
   @Get()
   findAll() {
     return this.messageService.findAll();
-  }
-
-  @ApiOperation({ summary: 'Get messages by conversation ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return messages for a specific conversation',
-  })
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @RequirePermissions('read-message')
-  @Get('conversation/:conversationId')
-  findByConversation(@Param('conversationId') conversationId: string) {
-    return this.messageService.findByConversation(conversationId);
   }
 
   @ApiOperation({ summary: 'Get a message by ID' })

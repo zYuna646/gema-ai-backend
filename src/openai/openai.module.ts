@@ -4,6 +4,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { OpenaiService } from './openai.service';
 import { OpenaiController } from './openai.controller';
 import openaiConfig from './config/openai.config';
+import { OpenAIRealtimeGateway } from './gateways/openai-realtime.gateway';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import openaiConfig from './config/openai.config';
     ]),
   ],
   controllers: [OpenaiController],
-  providers: [OpenaiService],
+  providers: [OpenaiService, OpenAIRealtimeGateway],
   exports: [OpenaiService],
 })
 export class OpenaiModule {}
