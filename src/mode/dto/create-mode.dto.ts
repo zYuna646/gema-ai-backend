@@ -6,7 +6,9 @@ import {
   IsString,
   Max,
   Min,
+  IsEnum,
 } from 'class-validator';
+import { RoleType } from '../entities/mode.entity';
 
 export class CreateModeDto {
   @ApiProperty({ example: 'Creative', description: 'Nama mode' })
@@ -32,4 +34,14 @@ export class CreateModeDto {
   @Min(0)
   @Max(1)
   temperature: number;
+
+  @ApiProperty({
+    example: 'system',
+    description: 'Role type (system, user, assistant)',
+    enum: RoleType,
+    default: RoleType.SYSTEM,
+  })
+  @IsOptional()
+  @IsEnum(RoleType)
+  role: RoleType;
 }

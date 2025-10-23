@@ -15,4 +15,11 @@ export class UpdateConversationDto {
   @IsOptional()
   @IsUUID()
   mode_id?: string;
+
+  @ApiPropertyOptional({
+    description: 'The ID of the user who owns this conversation',
+  })
+  @IsOptional()
+  @IsUUID()
+  user_id?: string;
 }

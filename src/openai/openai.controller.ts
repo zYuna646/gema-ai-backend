@@ -4,6 +4,7 @@ import { OpenaiService } from './openai.service';
 import { CreateOpenaiDto } from './dto/create-openai.dto';
 import { MessageDto } from './dto/message.dto';
 import { AudioRequestDto } from './dto/audio-request.dto';
+import { AudioConversationDto } from './dto/audio-conversation.dto';
 import { Observable } from 'rxjs';
 
 @Controller()
@@ -38,5 +39,10 @@ export class OpenaiController {
   @MessagePattern('openai.get_models')
   getModels() {
     return this.openaiService.getAvailableModels();
+  }
+
+  @MessagePattern('openai.audio_conversation')
+  audioConversation(@Payload() audioConversationDto: AudioConversationDto) {
+    return this.openaiService.audioConversation(audioConversationDto);
   }
 }
