@@ -69,7 +69,7 @@ export class RoleSeeder {
       }
 
       // Definisikan slug permission yang dibutuhkan untuk role user
-      const userPermissionSlugs = ['read-trial'];
+      const userPermissionSlugs = ['read-trial', 'read-mode'];
 
       // Cari semua permission yang dibutuhkan untuk role user
       const userPermissions = await this.permissionRepository.find({

@@ -121,6 +121,7 @@ You can customize the OpenAI session with query parameters:
 - `model`: OpenAI model - default: 'gpt-4o-realtime-preview'
 - `format`: Audio input format - default: 'pcm16'
 - `sr`: Audio sample rate - default: 16000
+- `mode_id`: Optional mode ID to use specific mode settings
 
 Example:
 ```javascript
@@ -129,7 +130,8 @@ const socket = io('ws://localhost:3000/ws/openai', {
     voice: 'nova',
     model: 'gpt-4o-realtime-preview',
     format: 'pcm16',
-    sr: 16000
+    sr: 16000,
+    mode_id: 'your-mode-id' // Optional: Use specific mode settings
   }
 });
 ```
