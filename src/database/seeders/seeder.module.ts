@@ -11,6 +11,7 @@ import { UserSeeder } from './user.seeder';
 import { SettingSeeder } from './setting.seeder';
 import { ModeSeeder } from './mode.seeder';
 import { ConfigModule } from '@nestjs/config';
+import { Conversation } from 'src/conversation/entities/conversation.entity';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { ConfigModule } from '@nestjs/config';
       entities: [Permission, Role, User, Setting, Mode],
       synchronize: process.env.NODE_ENV !== 'production',
     }),
-    TypeOrmModule.forFeature([Permission, Role, User, Setting, Mode]),
+    TypeOrmModule.forFeature([Permission, Role, User, Setting, Mode, Conversation]),
   ],
   providers: [
     PermissionSeeder,

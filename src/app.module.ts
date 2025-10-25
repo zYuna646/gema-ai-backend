@@ -19,6 +19,7 @@ import { Role } from './roles/entities/role.entity';
 import { User } from './users/entities/user.entity';
 import { Setting } from './settings/entities/setting.entity';
 import { Mode } from './mode/entities/mode.entity';
+import { Conversation } from './conversation/entities/conversation.entity';
 import { AuthModule } from './auth/auth.module';
 import { SettingsModule } from './settings/settings.module';
 import { TrialsModule } from './trials/trials.module';
@@ -54,7 +55,7 @@ import { OpenAIRealtimeGateway } from './gateways/openai-realtime.gateway';
         synchronize: configService.get('NODE_ENV') !== 'production',
       }),
     }),
-    TypeOrmModule.forFeature([Permission, Role, User, Setting, Mode]),
+    TypeOrmModule.forFeature([Permission, Role, User, Setting, Mode, Conversation]),
     PermissionsModule,
     RolesModule,
     UsersModule,

@@ -2,17 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Mode, RoleType } from '../../mode/entities/mode.entity';
+import { Conversation } from '../../conversation/entities/conversation.entity';
 
 @Injectable()
 export class ModeSeeder {
   constructor(
     @InjectRepository(Mode)
     private modeRepository: Repository<Mode>,
+    @InjectRepository(Conversation)
+    private conversationRepository: Repository<Conversation>,
   ) {}
 
   async clear() {
     console.log('Clearing all modes...');
-    await this.modeRepository.clear();
+    // Use raw query to truncate with CASCADE option to handle foreign key constraints
+    await this.conversationRepository.query('TRUNCATE TABLE "conversation" CASCADE');
+    await this.modeRepository.query('TRUNCATE TABLE "modes" CASCADE');
     console.log('All modes cleared');
   }
 
