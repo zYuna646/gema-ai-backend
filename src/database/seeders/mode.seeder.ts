@@ -16,7 +16,9 @@ export class ModeSeeder {
   async clear() {
     console.log('Clearing all modes...');
     // Use raw query to truncate with CASCADE option to handle foreign key constraints
-    await this.conversationRepository.query('TRUNCATE TABLE "conversation" CASCADE');
+    await this.conversationRepository.query(
+      'TRUNCATE TABLE "conversation" CASCADE',
+    );
     await this.modeRepository.query('TRUNCATE TABLE "modes" CASCADE');
     console.log('All modes cleared');
   }

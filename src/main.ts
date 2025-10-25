@@ -16,7 +16,9 @@ async function bootstrapOpenAIMicroservice() {
       transport: Transport.TCP,
       options: {
         host: process.env.OPEN_AI_HOST || 'localhost',
-        port: process.env.OPEN_AI_PORT ? parseInt(process.env.OPEN_AI_PORT) : 3001,
+        port: process.env.OPEN_AI_PORT
+          ? parseInt(process.env.OPEN_AI_PORT)
+          : 3001,
       },
     },
   );

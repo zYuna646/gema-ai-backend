@@ -209,6 +209,36 @@ socket.on('end', () => {
 });
 ```
 
+**7. `vad_state`** - Voice activity state updates
+```javascript
+socket.on('vad_state', (data) => {
+  // { isSpeaking: boolean, rms?: number, threshold: number, hangoverMs: number }
+  console.log('VAD state:', data);
+  // Update UI speaking indicator or recorder state
+});
+```
+
+### Voice Activity Detection (VAD)
+
+The gateway implements VAD to reduce noise and keep turn-taking natural:
+
+- Only forwards user PCM16 audio to OpenAI while speech is active.
+- Buffers AI audio while you are speaking; flushes after a brief silence.
+- Emits `vad_state` on connect (`isSpeaking: false`), on speech start (`isSpeaking: true`), and post-silence (`isSpeaking: false`).
+- Defaults: `vadThresholdRms = 0.015` and `vadHangoverMs = 300`.
+
+Client handling example:
+```javascript
+socket.on('vad_state', ({ isSpeaking, threshold, rms, hangoverMs }) => {
+  speakingIndicator.set(isSpeaking);
+  console.log(`VAD: speaking=${isSpeaking} rms=${rms} thr=${threshold} hangoverMs=${hangoverMs}`);
+});
+```
+
+Server implementation reference:
+- File: `src\\gateways\\openai-realtime.gateway.ts`
+- Detects speech using RMS on PCM16, resamples to `24000 Hz`, forwards chunks only when speech is detected, and schedules a post-silence flush.
+
 #### Complete WebSocket Client Example
 
 ```javascript

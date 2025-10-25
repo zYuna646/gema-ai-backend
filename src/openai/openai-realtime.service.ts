@@ -11,6 +11,7 @@ interface OpenAIConnection {
   voice: string;
   model: string;
   createdAt: Date;
+  pendingAudioChunks: string[];
 }
 
 @Injectable()
@@ -98,10 +99,10 @@ export class OpenAIRealtimeService implements OnModuleInit {
           modalities: ['text', 'audio'],
           voice,
           input_audio_format: inputAudioFormat,
-          input_audio_sample_rate: inputAudioSampleRate,
+          // Removed unsupported input_audio_sample_rate per API error
           output_audio_format: outputAudioFormat,
           temperature,
-          max_output_tokens: maxTokens,
+          // Removed unsupported max_output_tokens per API error
         },
       };
 
@@ -142,6 +143,7 @@ export class OpenAIRealtimeService implements OnModuleInit {
       voice,
       model,
       createdAt: new Date(),
+      pendingAudioChunks: [],
     };
 
     this.connections.set(clientId, connection);
@@ -162,18 +164,70 @@ export class OpenAIRealtimeService implements OnModuleInit {
       return;
     }
 
+    // Hitung durasi chunk (diasumsikan PCM16 mono 24kHz setelah resampling di gateway)
+    const chunkBytes = Buffer.from(audioData, 'base64').length;
+    const chunkMs = this.computePCM16DurationMs(audioData, 24000);
+
     this.logger.debug(
-      `Processing audio chunk for client ${clientId}, size: ${audioData.length}`,
+      `Processing audio chunk for client ${clientId}, size: ${chunkBytes}B (~${chunkMs.toFixed(1)}ms)`,
     );
 
-    const append = { type: 'input_audio_buffer.append', audio: audioData };
-    connection.ws.send(JSON.stringify(append));
-    connection.bufferCount++;
+    // Periksa status WebSocket sebelum mengirim data
+    if (connection.ws.readyState !== WebSocket.OPEN) {
+      this.logger.warn(
+        `WebSocket not ready for client ${clientId}, readyState: ${connection.ws.readyState}. Buffering audio chunk (~${chunkMs.toFixed(1)}ms).`,
+      );
+      
+      // Simpan chunk untuk dikirim nanti saat WebSocket siap
+      if (!connection.pendingAudioChunks) {
+        connection.pendingAudioChunks = [];
+      }
+      connection.pendingAudioChunks.push(audioData);
+      return;
+    }
 
-    // Log audio sent to OpenAI
-    this.logger.debug(
-      `Audio chunk sent to OpenAI for client ${clientId}, buffer count: ${connection.bufferCount}`,
-    );
+    // Kirim audio chunks yang di-buffer saat WebSocket sudah siap
+    if (connection.pendingAudioChunks && connection.pendingAudioChunks.length > 0) {
+      const totalBufferedMs = connection.pendingAudioChunks.reduce((acc, ch) => acc + this.computePCM16DurationMs(ch, 24000), 0);
+      const totalBufferedBytes = connection.pendingAudioChunks.reduce((acc, ch) => acc + Buffer.from(ch, 'base64').length, 0);
+      this.logger.log(`Sending ${connection.pendingAudioChunks.length} buffered audio chunks for client: ${clientId} (~${totalBufferedMs.toFixed(1)}ms, ${totalBufferedBytes}B)`);
+      
+      for (const buffered of connection.pendingAudioChunks) {
+        try {
+          const ms = this.computePCM16DurationMs(buffered, 24000);
+          const bytes = Buffer.from(buffered, 'base64').length;
+          const append = { type: 'input_audio_buffer.append', audio: buffered };
+          connection.ws.send(JSON.stringify(append));
+          connection.bufferCount++;
+          
+          this.logger.debug(
+            `Buffered chunk sent to OpenAI for client ${clientId}: ~${ms.toFixed(1)}ms (${bytes}B). Buffer count: ${connection.bufferCount}`,
+          );
+        } catch (error) {
+          this.logger.error(
+            `Error sending buffered audio chunk to OpenAI for client ${clientId}: ${error.message}`,
+          );
+        }
+      }
+      
+      // Clear the buffer after sending
+      connection.pendingAudioChunks = [];
+    }
+
+    try {
+      const append = { type: 'input_audio_buffer.append', audio: audioData };
+      connection.ws.send(JSON.stringify(append));
+      connection.bufferCount++;
+
+      // Log audio sent to OpenAI
+      this.logger.debug(
+        `Audio chunk sent to OpenAI for client ${clientId}: ~${chunkMs.toFixed(1)}ms (${chunkBytes}B). Buffer count: ${connection.bufferCount}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Error sending audio chunk to OpenAI for client ${clientId}: ${error.message}`,
+      );
+    }
   }
 
   /**
@@ -284,6 +338,15 @@ export class OpenAIRealtimeService implements OnModuleInit {
         `OpenAI message received for client ${clientId}, type: ${type}`,
       );
 
+      // Emit and log errors coming from OpenAI
+      if (type === 'error') {
+        const err = msg?.error || msg;
+        this.logger.error(
+          `OpenAI message error for client ${clientId}: ${typeof err === 'string' ? err : JSON.stringify(err)}`,
+        );
+        this.eventEmitter.emit('openai_error', { clientId, error: err });
+      }
+
       // Handle text delta variants
       if (
         type === 'response.delta' ||
@@ -306,6 +369,25 @@ export class OpenAIRealtimeService implements OnModuleInit {
         }
       }
 
+      // Handle audio transcript delta variants
+      if (
+        type === 'response.audio_transcript.delta' ||
+        type === 'audio_transcript.delta'
+      ) {
+        const transcriptDelta =
+          msg?.delta ??
+          msg?.response?.audio_transcript?.delta ??
+          msg?.audio_transcript?.delta ??
+          '';
+        if (transcriptDelta) {
+          this.eventEmitter.emit('openai_response', {
+            clientId,
+            type: 'response_text',
+            payload: { delta: transcriptDelta },
+          });
+        }
+      }
+
       // Handle audio delta variants (base64)
       if (
         type === 'response.output_audio.delta' ||
@@ -322,7 +404,7 @@ export class OpenAIRealtimeService implements OnModuleInit {
           this.eventEmitter.emit('openai_response', {
             clientId,
             type: 'response_audio_base64',
-            payload: audioB64,
+            payload: { audio: audioB64 },
           });
         }
       }
@@ -376,5 +458,17 @@ export class OpenAIRealtimeService implements OnModuleInit {
    */
   getAllConnectionsInfo(): OpenAIConnection[] {
     return Array.from(this.connections.values());
+  }
+
+  // Helper: hitung durasi PCM16 mono (ms)
+  private computePCM16DurationMs(base64Audio: string, sampleRate = 24000): number {
+    try {
+      const bytes = Buffer.from(base64Audio, 'base64').length;
+      const samples = bytes / 2; // 2 bytes per PCM16 sample
+      return (samples / sampleRate) * 1000;
+    } catch (e) {
+      this.logger.warn(`Failed to compute PCM16 duration: ${e.message}`);
+      return 0;
+    }
   }
 }

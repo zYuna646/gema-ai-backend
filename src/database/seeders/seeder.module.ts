@@ -29,7 +29,14 @@ import { Conversation } from 'src/conversation/entities/conversation.entity';
       entities: [Permission, Role, User, Setting, Mode],
       synchronize: process.env.NODE_ENV !== 'production',
     }),
-    TypeOrmModule.forFeature([Permission, Role, User, Setting, Mode, Conversation]),
+    TypeOrmModule.forFeature([
+      Permission,
+      Role,
+      User,
+      Setting,
+      Mode,
+      Conversation,
+    ]),
   ],
   providers: [
     PermissionSeeder,

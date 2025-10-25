@@ -201,18 +201,60 @@ export class OpenaiService {
         throw new Error('Format audio base64 tidak valid');
       }
 
+      // Validasi format audio yang didukung
+      const supportedMimeTypes = [
+        'audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/m4a', 
+        'audio/ogg', 'audio/webm', 'audio/mp4', 'audio/mpga'
+      ];
+      
+      if (!supportedMimeTypes.some(type => matches[1].toLowerCase().includes(type.split('/')[1]))) {
+        throw new Error(`Unsupported audio format: ${matches[1]}. Supported formats: ${supportedMimeTypes.join(', ')}`);
+      }
+
       const [, mimeType, base64Data] = matches;
       const buffer = Buffer.from(base64Data, 'base64');
 
-      // Simpan file audio sementara
-      const tempDir = os.tmpdir();
-      const tempFilePath = path.join(tempDir, `audio-${Date.now()}.wav`);
-      fs.writeFileSync(tempFilePath, buffer);
+      // Validasi ukuran file (OpenAI limit: 25MB)
+      const fileSizeMB = buffer.length / (1024 * 1024);
+      if (fileSizeMB > 25) {
+        throw new Error(`Audio file too large: ${fileSizeMB.toFixed(2)}MB. Maximum allowed: 25MB`);
+      }
 
-      // Transcribe audio menggunakan OpenAI
+      // Tentukan format file berdasarkan MIME type
+      let fileExtension = '.wav'; // Default ke WAV untuk kompatibilitas terbaik
+      let actualMimeType = mimeType.toLowerCase();
+      
+      // Mapping MIME type ke ekstensi yang didukung OpenAI
+      if (actualMimeType.includes('mp3') || actualMimeType.includes('mpeg')) {
+        fileExtension = '.mp3';
+      } else if (actualMimeType.includes('wav')) {
+        fileExtension = '.wav';
+      } else if (actualMimeType.includes('m4a')) {
+        fileExtension = '.m4a';
+      } else if (actualMimeType.includes('ogg')) {
+        fileExtension = '.ogg';
+      } else if (actualMimeType.includes('webm')) {
+        // WebM sering bermasalah, konversi ke WAV untuk kompatibilitas
+        fileExtension = '.wav';
+        this.logger.warn(`WebM format detected, will save as WAV for better OpenAI compatibility`);
+      }
+
+      const tempDir = os.tmpdir();
+      const tempFilePath = path.join(tempDir, `audio-${Date.now()}${fileExtension}`);
+      fs.writeFileSync(tempFilePath, buffer);
+      
+      this.logger.debug(`Audio file saved to ${tempFilePath} with original MIME type: ${mimeType}, saved as ${fileExtension}`);
+      
+      // Ensure the file exists and has content before transcription
+      if (!fs.existsSync(tempFilePath) || fs.statSync(tempFilePath).size === 0) {
+        throw new Error('Audio file could not be created or is empty');
+      }
+
+      // Transcribe audio menggunakan OpenAI dengan format MP3 yang kompatibel
       const transcription = await this.openai.audio.transcriptions.create({
         file: fs.createReadStream(tempFilePath),
         model: 'whisper-1',
+        response_format: 'text',
       });
 
       // Hapus file sementara
@@ -224,7 +266,7 @@ export class OpenaiService {
         if (conversation) {
           conversation.messages.push({
             role: 'user',
-            content: transcription.text,
+            content: transcription,
           } as ChatCompletionMessageParam);
         }
       } else {
@@ -232,7 +274,7 @@ export class OpenaiService {
           messages: [
             {
               role: 'user',
-              content: transcription.text,
+              content: transcription,
             } as ChatCompletionMessageParam,
           ],
           subject: new Subject(),
@@ -289,7 +331,7 @@ export class OpenaiService {
 
       return {
         conversationId: convId,
-        transcription: transcription.text,
+        transcription: transcription,
         responseText,
         audioResponse: audioBase64Response,
       };
@@ -367,13 +409,54 @@ export class OpenaiService {
         throw new Error('Format audio base64 tidak valid');
       }
 
+      // Validasi format audio yang didukung
+      const supportedMimeTypes = [
+        'audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/m4a', 
+        'audio/ogg', 'audio/webm', 'audio/mp4', 'audio/mpga'
+      ];
+      
+      if (!supportedMimeTypes.some(type => matches[1].toLowerCase().includes(type.split('/')[1]))) {
+        throw new Error(`Unsupported audio format: ${matches[1]}. Supported formats: ${supportedMimeTypes.join(', ')}`);
+      }
+
       const [, mimeType, base64Data] = matches;
       const buffer = Buffer.from(base64Data, 'base64');
 
-      // Simpan file audio sementara
+      // Validasi ukuran file (OpenAI limit: 25MB)
+      const fileSizeMB = buffer.length / (1024 * 1024);
+      if (fileSizeMB > 25) {
+        throw new Error(`Audio file too large: ${fileSizeMB.toFixed(2)}MB. Maximum allowed: 25MB`);
+      }
+
+      // Tentukan format file berdasarkan MIME type
+      let fileExtension = '.wav'; // Default ke WAV untuk kompatibilitas terbaik
+      let actualMimeType = mimeType.toLowerCase();
+      
+      // Mapping MIME type ke ekstensi yang didukung OpenAI
+      if (actualMimeType.includes('mp3') || actualMimeType.includes('mpeg')) {
+        fileExtension = '.mp3';
+      } else if (actualMimeType.includes('wav')) {
+        fileExtension = '.wav';
+      } else if (actualMimeType.includes('m4a')) {
+        fileExtension = '.m4a';
+      } else if (actualMimeType.includes('ogg')) {
+        fileExtension = '.ogg';
+      } else if (actualMimeType.includes('webm')) {
+        // WebM sering bermasalah, konversi ke WAV untuk kompatibilitas
+        fileExtension = '.wav';
+        this.logger.warn(`WebM format detected, will save as WAV for better OpenAI compatibility`);
+      }
+
       const tempDir = os.tmpdir();
-      const tempFilePath = path.join(tempDir, `audio-${Date.now()}.wav`);
+      const tempFilePath = path.join(tempDir, `audio-${Date.now()}${fileExtension}`);
       fs.writeFileSync(tempFilePath, buffer);
+      
+      this.logger.debug(`Audio file saved to ${tempFilePath} with original MIME type: ${mimeType}, saved as ${fileExtension}`);
+      
+      // Ensure the file exists and has content before transcription
+      if (!fs.existsSync(tempFilePath) || fs.statSync(tempFilePath).size === 0) {
+        throw new Error('Audio file could not be created or is empty');
+      }
 
       // Inisialisasi conversation jika belum ada
       if (!this.conversations.has(convId)) {
@@ -392,12 +475,13 @@ export class OpenaiService {
       const transcription = await this.openai.audio.transcriptions.create({
         file: fs.createReadStream(tempFilePath),
         model: 'whisper-1',
+        response_format: 'text',
       });
 
       // Tambahkan transcription ke conversation
       conversation.messages.push({
         role: 'user',
-        content: transcription.text,
+        content: transcription,
       } as ChatCompletionMessageParam);
 
       // Hapus file sementara
